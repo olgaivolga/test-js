@@ -51,29 +51,21 @@ console.log(cloned_entries === entries);
 console.log(entries);
 console.log(cloned_entries);
 
-var printData = function(data) {
-    var str = '';
-    for (var key in data) {
-        if (typeof data[key] == 'string') {
-			str = str + key + ' : ' + data[key]+'; \n';
-		} else {
-			str = str + key + ' : { \n' + printData(data[key]) + '} \n';
-		}
-    }
-    return str;
-};
-
 var printJSON = function(data) {
 	var str = '';
 	if (typeof data === 'object') {
 		str = JSON.stringify(data, null, 4)
 		}
 	return str;
-	}
+};
 
-for (var i in entries) {
-//	console.log(printData(entries[i]));
-	console.log(printJSON(entries[i]));
+if (typeof entries === 'object') {
+	for (var i in entries) {
+		console.log("Item " + i);
+		console.log(printJSON(entries[i])); 
+		}
+	} else {
+		console.log("Not an object"); 
 	}
 
 </script>
