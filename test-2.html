@@ -32,28 +32,30 @@ var entries = [{
 	}
 ]
 
-// Copy values
+// Clone: recreate from string
 var myClone = function(data) {
 	if ( typeof data == 'object' ) {
 			cloned_data = JSON.parse(JSON.stringify(data));
 			return cloned_data;
-		} else {
+	} else {
 			return null;
-		}
 	}
+}
+//TBD: Clone: recursively
+//...
 
 var cloned_entries = myClone(entries); 
 
-//Why 'false'?
+//'false' because links are compared, not objects
 console.log(cloned_entries === entries);
-console.log(entries);
-console.log(cloned_entries);
+//console.log(entries);
+//console.log(cloned_entries);
 
 var printJSON = function(data) {
 	var str = '';
 	if (typeof data === 'object') {
 		str = JSON.stringify(data, null, 4)
-		}
+	}
 	return str;
 };
 
@@ -61,10 +63,16 @@ if (typeof entries === 'object') {
 	for (var i in entries) {
 		console.log("Item " + i);
 		console.log(printJSON(entries[i])); 
-		}
-	} else {
-		console.log("Not an object"); 
 	}
+} else {
+		console.log("Not an object"); 
+}
+
+//Experiments
+entries[1]["id1"] = "new value";
+if (cloned_entries[1]["id1"] == "1") {
+	console.log("Cloned OK");
+}
 
 </script>
 </body>
