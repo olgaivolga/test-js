@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<title>test-2</title>
+</head>
+
+<body>
+<script>
+
+var entries="bar";
+
+var entries = [{
+	"id1" : {
+		"id11" : {
+			"id111" : {
+				"id1111" : {
+					"id11111" : "5",
+					"id11112" : "6"
+					},
+				"id1112" : {
+					"id11121" : "6"
+					}
+				},
+			"id112" : {
+				"id1121" : "5"
+				}
+			},
+		"id12" : "3"
+		},
+	"id2" : "2"
+	},
+	{
+	"id1" : "1"
+	}
+]
+
+// Copy values
+var myClone = function(data) {
+	if ( typeof data == 'object' ) {
+			cloned_data = JSON.parse(JSON.stringify(data));
+			return cloned_data;
+		} else {
+			return data;
+		}
+	}
+
+var cloned_entries = myClone(entries); 
+
+//Why 'false'?
+console.log(cloned_entries === entries);
+console.log(entries);
+console.log(cloned_entries);
+
+var printData = function(data) {
+    var str = '';
+    for (var key in data) {
+        if (typeof data[key] == 'string') {
+			str = str + key + ' : ' + data[key]+'; \n';
+		} else {
+			str = str + key + ' : { \n' + printData(data[key]) + '} \n';
+		}
+    }
+    return str;
+};
+
+var printJSON = function(data) {
+	var str = '';
+	if (typeof data === 'object') {
+		str = JSON.stringify(data, null, 4)
+		}
+	return str;
+	}
+
+for (var i in entries) {
+//	console.log(printData(entries[i]));
+	console.log(printJSON(entries[i]));
+	}
+
+</script>
+</body>
+</html>
