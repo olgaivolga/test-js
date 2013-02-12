@@ -7,6 +7,9 @@
 <body>
 <script>
 
+//What is this?
+Object.prototype.foo="bar";
+
 var entries = [{
 	"id1" : {
 		"id11" : {
@@ -30,26 +33,34 @@ var entries = [{
 	{
 	"id1" : "1"
 	}
-]
+];
 
 // Clone: recreate from string
 var myClone = function(data) {
 	if ( typeof data == 'object' ) {
-			cloned_data = JSON.parse(JSON.stringify(data));
+			var cloned_data = JSON.parse(JSON.stringify(data));
 			return cloned_data;
 	} else {
 			return null;
 	}
-}
-//TBD: Clone: recursively
-//...
+};
+//Clone: recursively
+var myRecClone = function(data) {
+	if (typeof data == 'object') {
+		var cloned_data = {};
+		for (var key in data) {
+			if (data.hasOwnProperty(key)) {
+				cloned_data[key] = myRecClone(data[key]);
+			}
+		}
+		return cloned_data;
+	} else {
+		return data;
+	}
+};
 
-var cloned_entries = myClone(entries); 
-
-//'false' because links are compared, not objects
-console.log(cloned_entries === entries);
-//console.log(entries);
-//console.log(cloned_entries);
+//var cloned_entries = myClone(entries); 
+var cloned_entries = myRecClone(entries);
 
 var printJSON = function(data) {
 	var str = '';
@@ -59,20 +70,25 @@ var printJSON = function(data) {
 	return str;
 };
 
-if (typeof entries === 'object') {
+if (typeof cloned_entries === 'object') {
 	for (var i in entries) {
 		console.log("Item " + i);
 		console.log(printJSON(entries[i])); 
 	}
 } else {
 		console.log("Not an object"); 
-}
+};
 
 //Experiments
+//'false' because links are compared, not objects
+console.log(cloned_entries === entries);
+//console.log(entries);
+//console.log(cloned_entries);
+
 entries[1]["id1"] = "new value";
 if (cloned_entries[1]["id1"] == "1") {
 	console.log("Cloned OK");
-}
+};
 
 </script>
 </body>
