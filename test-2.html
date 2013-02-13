@@ -7,8 +7,7 @@
 <body>
 <script>
 
-//What is this?
-Object.prototype.foo="bar";
+//Object.prototype.foo="bar";
 
 var entries = [{
 	"id1" : {
@@ -47,15 +46,22 @@ var myClone = function(data) {
 //Clone: recursively
 var myRecClone = function(data) {
 	if (typeof data == 'object') {
-		var cloned_data = {};
-		for (var key in data) {
-			if (data.hasOwnProperty(key)) {
-				cloned_data[key] = myRecClone(data[key]);
+		if (data instanceof Array) {
+			var cloned_data = [];
+			for (var i = 0; i < data.length ; i++) {
+				cloned_data[i] = myRecClone(data[i]);
 			}
+			return cloned_data;
+		} 
+		if (data instanceof Object) {
+			var cloned_data = {};
+			for (var key in data) {
+				if (data.hasOwnProperty(key)) {
+					cloned_data[key] = myRecClone(data[key]);
+				}
+			}
+			return cloned_data;
 		}
-		return cloned_data;
-	} else {
-		return data;
 	}
 };
 
@@ -71,6 +77,7 @@ var printJSON = function(data) {
 };
 
 if (typeof cloned_entries === 'object') {
+	console.log("Print cloned object as JSON:");
 	for (var i in entries) {
 		console.log("Item " + i);
 		console.log(printJSON(entries[i])); 
@@ -79,12 +86,15 @@ if (typeof cloned_entries === 'object') {
 		console.log("Not an object"); 
 };
 
-//Experiments
-//'false' because links are compared, not objects
-console.log(cloned_entries === entries);
-//console.log(entries);
-//console.log(cloned_entries);
+//Misc output
+//Always 'false' because links are compared, not objects
+//console.log(cloned_entries === entries);
+console.log("Original object: ");
+console.log(entries);
+console.log("Cloned object for some reason not consistent with printJSON result: ");
+console.log(cloned_entries); 
 
+// Check that the object was cloned
 entries[1]["id1"] = "new value";
 if (cloned_entries[1]["id1"] == "1") {
 	console.log("Cloned OK");
