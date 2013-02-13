@@ -7,7 +7,7 @@
 <body>
 <script>
 
-//Object.prototype.foo="bar";
+Object.prototype.foo="bar";
 
 var entries = [{
 	"id1" : {
@@ -62,6 +62,9 @@ var myRecClone = function(data) {
 			}
 			return cloned_data;
 		}
+	}
+	if (typeof data == 'string') {
+		return data;
 	}
 };
 
