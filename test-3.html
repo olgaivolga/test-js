@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+	div
+	{
+	color: blue;
+	letter-spacing:5px
+	}
+</style>
+<title>Page Title</title>
+</head>
+
+<body>
+	<div id="something">Какой-то текст</div>
+	
+	<script>
+	var newDiv = document.createElement("div");
+	var newText = document.createTextNode("«...и еще кое-что.»");
+	newDiv.appendChild(newText);
+ 	refDiv = document.getElementById("something");
+	//1
+	//Find sibling and parent
+	//refDivAfter = refDiv.nextSibling;
+	//refDivBefore = refDiv.parentNode;
+	//Put new node before the element which is after refDiv (can be null)
+	//refDivBefore.insertBefore(newDiv, refDivAfter);
+	//2
+	refDiv.parentNode.insertBefore(newDiv, refDiv.nextSibling);
+	
+	</script>
+	
+    
+
+</body>
+</html>
