@@ -14,20 +14,20 @@ var entries = [{
 		"id11" : {
 			"id111" : {
 				"id1111" : {
-					"id11111" : "5",
-					"id11112" : "6"
+					"id11111" : 5,
+					"id11112" : 3.14
 					},
 				"id1112" : {
 					"id11121" : "6"
 					}
 				},
 			"id112" : {
-				"id1121" : "5"
+				"id1121" : "null"
 				}
 			},
-		"id12" : "3"
+		"id12" : "false"
 		},
-	"id2" : "2"
+	"id2" : "string"
 	},
 	{
 	"id1" : "1"
@@ -44,33 +44,33 @@ var myClone = function(data) {
 	}
 };
 //Clone: recursively
-//Next time use switch-case...
 var myRecClone = function(data) {
-	if (typeof data == 'object') {
-		if (data instanceof Array) {
-			var cloned_data = [];
-			for (var i = 0; i < data.length ; i++) {
-				cloned_data[i] = myRecClone(data[i]);
+	switch (typeof data) {
+		case 'object': 
+			if (data instanceof Array) {
+				var cloned_data = [];
+			} else {
+				var cloned_data = {};
 			}
-			return cloned_data;
-		} 
-		if (data instanceof Object) {
-			var cloned_data = {};
 			for (var key in data) {
 				if (data.hasOwnProperty(key)) {
 					cloned_data[key] = myRecClone(data[key]);
 				}
 			}
 			return cloned_data;
-		}
+		case 'number':
+			return data;
+		case 'string':
+			return data;
+		case 'boolean':
+			return data;
+		default: //undefined?function?
+			throw new Error(100500,"Failed to clone!");
 	}
-	if (typeof data == 'string') {
-		return data;
-	}
-};
+}
 
 //var cloned_entries = myClone(entries); 
-var cloned_entries = myRecClone(entries);
+var cloned_entries = myRecClone(entries); 
 
 var printJSON = function(data) {
 	var str = '';
