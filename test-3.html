@@ -1,43 +1,103 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-<style type="text/css">
-	div
-	{
-	color: blue;
-	letter-spacing:5px
-	}
-</style>
 <title>Page Title</title>
+<style type="text/css">
+div
+{
+color: blue;
+letter-spacing:5px
+}
+</style>
 </head>
 
 <body>
 	<div id="something">Какой-то текст</div>
 	
 	<script>
+	var start = new Date().getMilliseconds();
 	
 	var text = " «...и еще кое-что.»";
+
+	//1.1
+	/*
 	var newDiv = document.createElement("div");
 	newDiv.setAttribute("id", "something1");
 	var newText = document.createTextNode(text);
 	newDiv.appendChild(newText);
- 	refDiv = document.getElementById("something");
-	//1
+ 	var refDiv = document.getElementById("something");
+	*/
+	
 	//Find sibling and parent of reference
 	//refDivAfter = refDiv.nextSibling;
 	//refDivBefore = refDiv.parentNode;
 	//Put new node before the element which is after refDiv (in this case before null). Counting from parent (document).
 	//refDivBefore.insertBefore(newDiv, refDivAfter);
 	
-	//2 
-	refDiv.parentNode.insertBefore(newDiv, refDiv.nextSibling);
+	//1.2 
+	//refDiv.parentNode.insertBefore(newDiv, refDiv.nextSibling);
 	
 	//3
-	//document.getElementById('something').innerHTML = document.getElementById('something').innerHTML + text;
+	//document.getElementById('something').innerHTML += text;
 	
 	//4
 	//document.getElementById('something').insertAdjacentHTML('beforeend', text);
 	
+	//5  
+	document.getElementById("something").innerHTML += '<span id="sp100">' + text + '</span>';
+	//console.log(document.getElementById("sp100"));
+	
+	
+	//Apply style as class
+	/*
+	var newStyle = document.createElement('style');
+	newStyle.type = 'text/css';
+	newStyle.innerHTML = '.newClass { color: green; }';
+	document.getElementsByTagName('head')[0].appendChild(newStyle);
+	document.getElementById('sp100').className = 'newClass';
+	*/
+	
+	// Now same as above, but using function
+	//CSS is a string
+	var applyCSS1 = function(id, css) {
+		var newStyle = document.createElement('style');
+		newStyle.type = 'text/css';
+		var css = '#' + id + ' ' + css;
+		//console.log(css);
+		newStyle.innerHTML = css;
+		document.getElementsByTagName('head')[0].appendChild(newStyle);
+	}
+	applyCSS1('sp100', '{ letter-spacing: initial; color: magenta }') ;
+	
+	
+	// CSS is an object
+	document.getElementById("something").innerHTML += '<span id="sp200"> ... and some more text.</span>';
+
+	var applyCSS2 = function(id, css) {
+		if ( typeof css == 'object' ) {
+			var cssString = '\n#' + id + '\n{\n';
+			for (var key in css) {
+				if (typeof css[key] == 'string') {
+					cssString += key + ' : ' + css[key] + ';';
+				}
+			}
+			cssString += '\n}\n';
+		} else {
+			console.log("Invalid argument!");
+		}
+		var newStyle = document.createElement('style');
+		newStyle.type = 'text/css';
+		newStyle.innerHTML = cssString;
+		document.getElementsByTagName('head')[0].appendChild(newStyle);
+	}
+	
+	var someCSS2 = { "font-weight": "bold", "color": "green" };
+	//var someCSS2 = { "font-weight": 3, "color": Math.Sin, "letter-spacing": false }; // results in empty css
+	applyCSS2('sp200', someCSS2) ;
+	
+	var end = new Date().getTime();
+	var time = end - start;
+	console.log('Execution time: ' + time);
 	</script>
 	
     
