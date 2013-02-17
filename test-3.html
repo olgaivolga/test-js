@@ -57,7 +57,7 @@ letter-spacing:5px
 	document.getElementById('sp100').className = 'newClass';
 	*/
 	
-	// Now same as above, but using function
+	//Apply as id and using function
 	//CSS is a string
 	var applyCSS1 = function(id, css) {
 		var newStyle = document.createElement('style');
@@ -69,22 +69,21 @@ letter-spacing:5px
 	}
 	applyCSS1('sp100', '{ letter-spacing: initial; color: magenta }') ;
 	
-	
 	// CSS is an object
 	document.getElementById("something").innerHTML += '<span id="sp200"> ... and some more text.</span>';
 
 	var applyCSS2 = function(id, css) {
+		var cssString = '\n#' + id + '\n{\n';
 		if ( typeof css == 'object' ) {
-			var cssString = '\n#' + id + '\n{\n';
 			for (var key in css) {
 				if (typeof css[key] == 'string') {
 					cssString += key + ' : ' + css[key] + ';';
 				}
 			}
-			cssString += '\n}\n';
 		} else {
 			console.log("Invalid argument!");
 		}
+		cssString += '\n}\n';
 		var newStyle = document.createElement('style');
 		newStyle.type = 'text/css';
 		newStyle.innerHTML = cssString;
@@ -94,6 +93,11 @@ letter-spacing:5px
 	var someCSS2 = { "font-weight": "bold", "color": "green" };
 	//var someCSS2 = { "font-weight": 3, "color": Math.Sin, "letter-spacing": false }; // results in empty css
 	applyCSS2('sp200', someCSS2) ;
+	
+	//And another method:
+	//var div = document.getElementById("foo");
+	//div.style.color = "#abc"
+	//div.style.style.fontWeight = "bold"
 	
 	var end = new Date().getTime();
 	var time = end - start;
