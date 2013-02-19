@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<title>Page Title</title>
+<style type="text/css">
+div
+{
+color: blue;
+letter-spacing:5px
+}
+</style>
+</head>
+
+<body>
+	<div id="something">Какой-то текст</div>
+	
+	<script>
+	var text = " «...и еще кое-что.»";
+	document.getElementById("something").innerHTML += '<span id="sp100">' + text + '</span>';
+	document.getElementById("something").innerHTML += '<span id="sp200"> ... and some more text.</span>';
+
+	var applyCSS = function(id, css) {
+		var cssString = '\n#' + id + '\n{\n';
+		if ( typeof css == 'object' ) {
+			for (var key in css) {
+				if (typeof css[key] == 'string') {
+					cssString += key + ' : ' + css[key] + ';';
+				}
+			}
+		} else {
+			console.log("Invalid argument!");
+		}
+		cssString += '\n}\n';
+		var newStyle = document.createElement('style');
+		newStyle.type = 'text/css';
+		newStyle.innerHTML = cssString;
+		document.getElementsByTagName('head')[0].appendChild(newStyle);
+	}
+	
+	var someCSS1 = { "letter-spacing": "10px", "color": "magenta" };
+	applyCSS('sp100', someCSS1) ;
+	var someCSS2 = { "font-weight": "bold", "color": "green" };
+	applyCSS('sp200', someCSS2) ;
+	
+	var targets = document.getElementsByTagName('div')
+	for (var i = 0; i < targets.length; i++) { 
+    	var clone = targets[i].cloneNode(true);
+		//This is a loop! :-)
+		//targets[i].parentNode.appendChild(clone); 
+		console.log(clone);
+	}
+	
+	//No loop this time (start looking below div, append above div)
+	var lookFrom = document.getElementById('something')
+	targets = lookFrom.getElementsByTagName('span')
+	for (var i = 0; i < targets.length; i++) { 
+    	var clone = targets[i].cloneNode(true);
+		lookFrom.parentNode.appendChild(clone); 
+		console.log(clone);
+	}
+	
+	</script>
+	
+    
+
+</body>
+</html>
