@@ -37,7 +37,7 @@ input[type="radio"] {   // What is this stuff in brackets?
 <script src="test-4.js"></script>
 <script>
 var domElement = document.getElementById("elementToClone");
-var clonedElement = cloneRec(domElement);
+var clonedElement = clone2(domElement);
 clonedElement.style.opacity = "0.5";
 domElement.parentNode.appendChild(clonedElement);
 
