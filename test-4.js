@@ -1,10 +1,10 @@
-var clone = function(element) {
+var clone1 = function(element) {
 	var target = element;
 	var clone = target.cloneNode(true);
 	return clone;
 }
 
-var cloneRec = function(element) {
+var clone2 = function(element) {
 	var target = element;
 	//console.log(clone);
 	if (clone == undefined) {
@@ -13,7 +13,7 @@ var cloneRec = function(element) {
 	var children = target.childNodes;
 	if (children != null) {
 		for (var i = 0; i < children.length; i++) {
-			cloneRec(clone.appendChild(children[i]));
+			clone2(clone.appendChild(children[i]));
 			console.log(clone);
 		}
 	}
