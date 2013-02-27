@@ -52,13 +52,23 @@
 	
 $(document).ready(function(){
 
-	$('.container > div').click(function(){
-		$(this).toggle(
-		function(){$(this).appendTo('.to'); console.log('TO');},
-		function(){$(this).appendTo('.from'); console.log('FROM');}
-		)
-	}); 
-	
+	$(".container > div").click(function() { 
+		if ($(this).hasClass('green')) {
+			$(this).detach().appendTo('.from').removeClass('green'); 
+		} else  {
+			$(this).detach().appendTo('.to').addClass('green'); 
+		} 
+	})
+
+/*
+	$(".container > div").click(function() { 
+		if ($(this).parent().hasClass('from')) {
+			$(this).detach().appendTo('.to'); 
+		} else if ($(this).parent().hasClass('to')) {
+				$(this).detach().appendTo('.from'); 
+		} 
+	})
+*/
 /*	
 	$(".container > div").click(function() { 
 		var moved = false;
@@ -71,7 +81,8 @@ $(document).ready(function(){
 			$(this).appendTo('.from'); 
 			moved = true;
 		} 
-	}); */
+	}); 
+*/	
 });
 
 </script>
