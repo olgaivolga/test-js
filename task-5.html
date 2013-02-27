@@ -52,16 +52,26 @@
 	
 $(document).ready(function(){
 
-	$('.from > div').click(function(){
-		$(this).clone().appendTo('.to');	
-		$(this).hide();
-	});
-   
-	$('.to > div').click(function(){
-		$(this).clone().appendTo('.from');	
-		$(this).hide();
-	});
-   
+	$('.container > div').click(function(){
+		$(this).toggle(
+		function(){$(this).appendTo('.to'); console.log('TO');},
+		function(){$(this).appendTo('.from'); console.log('FROM');}
+		)
+	}); 
+	
+/*	
+	$(".container > div").click(function() { 
+		var moved = false;
+
+		if ($(this).parent().hasClass('from') && !moved) {
+			$(this).appendTo('.to'); 
+			moved = true;
+		}
+		if ($(this).parent().hasClass('to') && !moved) {
+			$(this).appendTo('.from'); 
+			moved = true;
+		} 
+	}); */
 });
 
 </script>
