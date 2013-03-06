@@ -26,8 +26,8 @@
 }
 
 .rotating {
-    transform: rotate(10deg);
-    -webkit-transform: rotate(10deg);
+    transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
 }
 
 body {
@@ -64,6 +64,7 @@ pre {
     font-family: "Courier New", monospace;
     font-size: 14px;
 }
+
 </style>
 <body>
 
@@ -74,7 +75,7 @@ pre {
 
     <div class="rotating non-selectable clickable example-box centered"
          onclick="replaceNumber(this, rotateRandom(this))">
-      This text is rotated at <b>10&deg;</b> angle. Try clicking it.
+      This text is rotated at <b>0&deg;</b> angle. Try clicking it.
     </div>
 
     Create a JavaScript object <code>Wobbler</code> which makes the given HTML element wobble like shown below.
@@ -97,7 +98,6 @@ pre {
  * Rotate the given HTML element by a randomly selected value.
  * Returns that random value.
  */
-/*
 function rotateRandom(div) {
     var rotateDegree = Math.round(Math.random() * 90 - 45);
     var rotateCSSProperty = "rotate(" + rotateDegree + "deg)";
@@ -105,18 +105,17 @@ function rotateRandom(div) {
 
     return rotateDegree;
 }
-*/
+
 /*
  * Replace number in a text with a new value.
  */
-/*
 function replaceNumber(div, newNumber) {
     // Replace the string of digits (and a minus) with a given value.
     var re = new RegExp("([^0-9-]*)[-0-9.]+(.*)");
     var resultsArray = re.exec(div.innerHTML);
     div.innerHTML = resultsArray[1] + newNumber + resultsArray[2];
 }
-*/
+
 /*
  * Set the CSS property in a way compatible with many browsers.
  */
@@ -139,19 +138,19 @@ function setBrowserIndependentProperty(div, property, value) {
 
 function Wobbler(element) {
 	this.element = element;
-	this.n = 0;
+	//this.n = 0;
 	return this;
 }
 
 Wobbler.prototype.idle = function(ms) { 
 	var time = new Date().getTime();
     while(new Date().getTime() < time + ms) {}
-	this.n++;
-	console.log('idle...', this.n);
+	//this.n++;
+	//console.log('idle...', this.n);
 }
 
 Wobbler.prototype.rotateElement = function() {
-	for(var i = 0; i < Math.PI; i=i+0.1) {
+	for(var i = 0; i < Math.PI; i=i+(Math.PI/10)) {
 		var rotateDegree = Math.asin(Math.abs(Math.sin(i)))*(180/Math.PI);
 		var rotateCSSProperty = "rotate(" + rotateDegree + "deg)";
 		console.log(rotateCSSProperty);
@@ -159,11 +158,10 @@ Wobbler.prototype.rotateElement = function() {
 		this.idle(500);
 	}
 }
- 
+
 var divs = document.getElementsByClassName("rotating");
 for(var i = 0; i < divs.length; i++) {
 	var w = new Wobbler(divs[i]);
-	console.log(w.element.tagName);
 	//w.element.innerHTML = "WWWWWWWWWWWWWW";
 	w.rotateElement();
 }
