@@ -138,32 +138,29 @@ function setBrowserIndependentProperty(div, property, value) {
 
 function Wobbler(element) {
 	this.element = element;
-	//this.n = 0;
+	this.n = 0;
 	return this;
 }
 
-Wobbler.prototype.idle = function(ms) { 
-	var time = new Date().getTime();
-	while(new Date().getTime() < time + ms) {}
-	//this.n++;
-	//console.log('idle...', this.n);
+Wobbler.prototype.idle = function() {
+	for(var i = 0; i < Math.PI; i=i+(Math.PI/10)) {
+		this.n = setInterval(this.rotateElement(i),1000);
+	}
+	return this.n;
 }
 
-Wobbler.prototype.rotateElement = function() {
-	for(var i = 0; i < Math.PI; i=i+(Math.PI/10)) {
-		var rotateDegree = Math.asin(Math.abs(Math.sin(i)))*(180/Math.PI);
-		var rotateCSSProperty = "rotate(" + rotateDegree + "deg)";
-		console.log(rotateCSSProperty);
-		setBrowserIndependentProperty(this.element, "transform", rotateCSSProperty);
-		this.idle(500);
-	}
+Wobbler.prototype.rotateElement = function(i) {
+	var rotateDegree = Math.asin(Math.abs(Math.sin(i)))*(180/Math.PI);
+	var rotateCSSProperty = "rotate(" + rotateDegree + "deg)";
+	console.log(rotateCSSProperty);
+	setBrowserIndependentProperty(this.element, "transform", rotateCSSProperty);
 }
 
 var divs = document.getElementsByClassName("rotating");
 for(var i = 0; i < divs.length; i++) {
 	var w = new Wobbler(divs[i]);
 	//w.element.innerHTML = "WWWWWWWWWWWWWW";
-	w.rotateElement();
+	console.log(w.idle());
 }
 
 </script>
