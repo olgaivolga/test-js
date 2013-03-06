@@ -143,17 +143,18 @@ function Wobbler(element) {
 }
 
 Wobbler.prototype.idle = function() {
-	for(var i = 0; i < Math.PI; i=i+(Math.PI/10)) {
-		this.n = setInterval(this.rotateElement(i),1000);
-	}
-	return this.n;
+	var self = this;
+	setInterval( function() { self.rotateElement(); }, 1000);
 }
 
-Wobbler.prototype.rotateElement = function(i) {
-	var rotateDegree = Math.asin(Math.abs(Math.sin(i)))*(180/Math.PI);
+Wobbler.prototype.rotateElement = function() {
+	var rotateDegree = Math.asin(Math.abs(Math.sin(this.n)))*(180/Math.PI);
 	var rotateCSSProperty = "rotate(" + rotateDegree + "deg)";
 	console.log(rotateCSSProperty);
 	setBrowserIndependentProperty(this.element, "transform", rotateCSSProperty);
+	this.n = this.n + (Math.PI/10);
+	console.log(this.n);
+	return this.n;
 }
 
 var divs = document.getElementsByClassName("rotating");
