@@ -97,6 +97,7 @@ pre {
  * Rotate the given HTML element by a randomly selected value.
  * Returns that random value.
  */
+/*
 function rotateRandom(div) {
     var rotateDegree = Math.round(Math.random() * 90 - 45);
     var rotateCSSProperty = "rotate(" + rotateDegree + "deg)";
@@ -104,17 +105,18 @@ function rotateRandom(div) {
 
     return rotateDegree;
 }
-
+*/
 /*
  * Replace number in a text with a new value.
  */
+/*
 function replaceNumber(div, newNumber) {
     // Replace the string of digits (and a minus) with a given value.
     var re = new RegExp("([^0-9-]*)[-0-9.]+(.*)");
     var resultsArray = re.exec(div.innerHTML);
     div.innerHTML = resultsArray[1] + newNumber + resultsArray[2];
 }
-
+*/
 /*
  * Set the CSS property in a way compatible with many browsers.
  */
@@ -135,27 +137,35 @@ function setBrowserIndependentProperty(div, property, value) {
  * This script section uses the second approach.
  */
 
-function Wobbler(div) {
-    return $.extend(this, div);
+function Wobbler(element) {
+	this.element = element;
+	this.n = 0;
+	return this;
 }
 
-Wobbler.prototype.sec = function() { console.log('idle...');}
-Wobbler.prototype.rotateElement = function(div) {
+Wobbler.prototype.idle = function(ms) { 
+	var time = new Date().getTime();
+    while(new Date().getTime() < time + ms) {}
+	this.n++;
+	console.log('idle...', this.n);
+}
+
+Wobbler.prototype.rotateElement = function() {
 	for(var i = 0; i < Math.PI; i=i+0.1) {
 		var rotateDegree = Math.asin(Math.abs(Math.sin(i)))*(180/Math.PI);
-		console.log(rotateDegree);
 		var rotateCSSProperty = "rotate(" + rotateDegree + "deg)";
-		setBrowserIndependentProperty(div, "transform", rotateCSSProperty);
-		setInterval(this.sec(), 1000)
+		console.log(rotateCSSProperty);
+		setBrowserIndependentProperty(this.element, "transform", rotateCSSProperty);
+		this.idle(500);
 	}
 }
  
 var divs = document.getElementsByClassName("rotating");
-
 for(var i = 0; i < divs.length; i++) {
-	console.log(divs[i]);
 	var w = new Wobbler(divs[i]);
-	w.rotateElement(divs[i]);
+	console.log(w.element.tagName);
+	//w.element.innerHTML = "WWWWWWWWWWWWWW";
+	w.rotateElement();
 }
 
 </script>
