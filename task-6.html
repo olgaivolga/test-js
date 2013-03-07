@@ -74,7 +74,7 @@ pre {
     the <a href="http://www.w3.org/TR/css3-transforms/">CSS3 Transforms</a> API.
 
     <div class="rotating non-selectable clickable example-box centered"
-         onclick="replaceNumber(this, rotateRandom(this))">
+         onmousedown="window.clearInterval(w.interval)" onmouseup="w.idle()">
       This text is rotated at <b>0&deg;</b> angle. Try clicking it.
     </div>
 
@@ -140,12 +140,14 @@ function Wobbler(element, amplitude) {
 	this.element = element;
 	this.n = 0;
 	this.amplitude = amplitude;
+	this.interval;
 	return this;
 }
 
 Wobbler.prototype.idle = function() {
 	var self = this;
-	return setInterval( function() { self.rotateElement(); }, 16);
+	this.interval = setInterval( function() { self.rotateElement(); }, 16);
+	return this.interval;
 }
 
 Wobbler.prototype.rotateElement = function() {
@@ -159,7 +161,7 @@ Wobbler.prototype.rotateElement = function() {
 
 var divs = document.getElementsByClassName("rotating");
 for(var i = 0; i < divs.length; i++) {
-	var w = new Wobbler(divs[i], 15);
+	var w = new Wobbler(divs[i], 90);
 	//w.element.innerHTML = "WWWWWWWWWWWWWW";
 	console.log(w.idle());
 }
