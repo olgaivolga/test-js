@@ -136,33 +136,37 @@ function setBrowserIndependentProperty(div, property, value) {
  * This script section uses the second approach.
  */
 
-function Wobbler(element) {
+function Wobbler(element, amplitude) {
 	this.element = element;
 	this.n = 0;
+	this.amplitude = amplitude;
 	return this;
 }
 
 Wobbler.prototype.idle = function() {
 	var self = this;
-	setInterval( function() { self.rotateElement(); }, 1000);
+	return setInterval( function() { self.rotateElement(); }, 16);
 }
 
 Wobbler.prototype.rotateElement = function() {
-	var rotateDegree = Math.asin(Math.abs(Math.sin(this.n)))*(180/Math.PI);
+	var limiter = 180/this.amplitude;
+	var rotateDegree = Math.asin(Math.sin(this.n))*(180/Math.PI)/limiter;
 	var rotateCSSProperty = "rotate(" + rotateDegree + "deg)";
-	console.log(rotateCSSProperty);
 	setBrowserIndependentProperty(this.element, "transform", rotateCSSProperty);
-	this.n = this.n + (Math.PI/10);
-	console.log(this.n);
+	this.n = this.n + (Math.PI/300)*limiter;
 	return this.n;
 }
 
 var divs = document.getElementsByClassName("rotating");
 for(var i = 0; i < divs.length; i++) {
-	var w = new Wobbler(divs[i]);
+	var w = new Wobbler(divs[i], 15);
 	//w.element.innerHTML = "WWWWWWWWWWWWWW";
 	console.log(w.idle());
 }
+
+//Not fixed:
+//rotation angle limits can be only symmetric
+//text is not replaced
 
 </script>
 
