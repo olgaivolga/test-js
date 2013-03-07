@@ -139,7 +139,7 @@ function setBrowserIndependentProperty(div, property, value) {
 function Wobbler(element, amplitude) {
 	this.element = element;
 	this.n = 0;
-	this.limiter = 180/amplitude;
+	this.amplitude = amplitude;
 	this.interval;
 	return this;
 }
@@ -151,16 +151,16 @@ Wobbler.prototype.idle = function() {
 }
 
 Wobbler.prototype.rotateElement = function() {
-	var rotateDegree = Math.sin(this.n)*(180/Math.PI)/this.limiter;
+	var rotateDegree = Math.sin(this.n/20)*this.amplitude;
 	var rotateCSSProperty = "rotate(" + rotateDegree + "deg)";
 	setBrowserIndependentProperty(this.element, "transform", rotateCSSProperty);
-	this.n += (Math.PI/300)*this.limiter;
+	this.n++;
 	return this.n;
 }
 
 var divs = document.getElementsByClassName("rotating");
 for(var i = 0; i < divs.length; i++) {
-	var w = new Wobbler(divs[i], 30);
+	var w = new Wobbler(divs[i], 200);
 	//w.element.innerHTML = "WWWWWWWWWWWWWW";
 	console.log(w.idle());
 }
