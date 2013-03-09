@@ -143,11 +143,9 @@ function Wobbler(element, amplitude, skew) {
 	this.n = 0;
 	this.interval;
 	this.amplitude = amplitude;
-	if (!skew) {
-		this.delta = 0;
-	} else {
-		this.skew = skew;
-	}
+	if (!skew) { this.skew = 0;	}
+		else { this.skew = skew; }
+	
 	var self = this;
 	this.idle();
 	$(this.element).mousedown(function() { self.stop(); });
