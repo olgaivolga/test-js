@@ -138,12 +138,16 @@ function setBrowserIndependentProperty(div, property, value) {
  * This script section uses the second approach.
  */
 
-function Wobbler(element, amplitude) {
+function Wobbler(element, amplitude, skew) {
 	this.element = element;
 	this.n = 0;
-	this.amplitude = amplitude;
 	this.interval;
-	
+	this.amplitude = amplitude;
+	if (!a2) {
+		this.delta = 0;
+	} else {
+		this.skew = skew;
+	}
 	var self = this;
 	this.idle();
 	$(this.element).mousedown(function() { self.stop(); });
@@ -162,7 +166,7 @@ Wobbler.prototype.stop = function() {
 }
 
 Wobbler.prototype.rotateElement = function() {
-	var rotateDegree = Math.sin(this.n/20)*this.amplitude;
+	var rotateDegree = Math.sin(this.n/20)*this.amplitude + this.skew; 
 	var rotateCSSProperty = "rotate(" + rotateDegree + "deg)";
 	setBrowserIndependentProperty(this.element, "transform", rotateCSSProperty);
 	this.replaceNumber(this.amplitude);
@@ -179,8 +183,8 @@ Wobbler.prototype.replaceNumber = function(newNumber) {
 
 var divs = document.getElementsByClassName("rotating");
 for(var i = 0; i < divs.length; i++) {
-	//rotation angle limits can be only symmetric
-	var w = new Wobbler(divs[i], 20);
+	//var w = new Wobbler(divs[i], 20);
+	var w = new Wobbler(divs[i], 10, 90);
 }
 
 </script>
