@@ -73,8 +73,9 @@ pre {
     This test demonstrates the use of CSS and low level JavaScript to exploit
     the <a href="http://www.w3.org/TR/css3-transforms/">CSS3 Transforms</a> API.
 
-    <div class="rotating non-selectable clickable example-box centered"
-         onmousedown="window.clearInterval(w.interval)" onmouseup="w.idle()">
+    <!--div class="rotating non-selectable clickable example-box centered"
+         onmousedown="window.clearInterval(w.interval)" onmouseup="w.idle()"-->
+    <div class="rotating non-selectable clickable example-box centered">
       This text is rotated at <b>0&deg;</b> angle. Try clicking it.
     </div>
 
@@ -98,6 +99,7 @@ pre {
  * Rotate the given HTML element by a randomly selected value.
  * Returns that random value.
  */
+ 
 function rotateRandom(div) {
     var rotateDegree = Math.round(Math.random() * 90 - 45);
     var rotateCSSProperty = "rotate(" + rotateDegree + "deg)";
@@ -141,33 +143,45 @@ function Wobbler(element, amplitude) {
 	this.n = 0;
 	this.amplitude = amplitude;
 	this.interval;
-	return this;
+	
+	var self = this;
+	this.idle();
+	$(this.element).mousedown(function() { self.stop(); });
+	$(document).mouseup(function() { self.idle(); });
 }
 
 Wobbler.prototype.idle = function() {
 	var self = this;
+	self.stop();
 	this.interval = setInterval( function() { self.rotateElement(); }, 16);
 	return this.interval;
+}
+
+Wobbler.prototype.stop = function() {
+	clearInterval(this.interval);
 }
 
 Wobbler.prototype.rotateElement = function() {
 	var rotateDegree = Math.sin(this.n/20)*this.amplitude;
 	var rotateCSSProperty = "rotate(" + rotateDegree + "deg)";
 	setBrowserIndependentProperty(this.element, "transform", rotateCSSProperty);
+	this.replaceNumber(this.amplitude);
 	this.n++;
 	return this.n;
 }
 
-var divs = document.getElementsByClassName("rotating");
-for(var i = 0; i < divs.length; i++) {
-	var w = new Wobbler(divs[i], 200);
-	//w.element.innerHTML = "WWWWWWWWWWWWWW";
-	console.log(w.idle());
+Wobbler.prototype.replaceNumber = function(newNumber) {
+    // Replace the string of digits (and a minus) with a given value.
+    var re = new RegExp("([^0-9-]*)[-0-9.]+(.*)");
+    var resultsArray = re.exec(this.element.innerHTML);
+    this.element.innerHTML = resultsArray[1] + newNumber + resultsArray[2];
 }
 
-//Not fixed:
-//rotation angle limits can be only symmetric
-//text is not replaced
+var divs = document.getElementsByClassName("rotating");
+for(var i = 0; i < divs.length; i++) {
+	//rotation angle limits can be only symmetric
+	var w = new Wobbler(divs[i], 20);
+}
 
 </script>
 
