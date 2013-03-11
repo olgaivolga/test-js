@@ -173,7 +173,7 @@ Wobbler.prototype.rotateElement = function() {
 }
 
 Wobbler.prototype.replaceNumber = function(newNumber) {
-    // Replace the string of digits (and a minus) with a given value.
+    // Replace the string of digits (and a minus) with a given value of amplitude.
     var re = new RegExp("([^0-9-]*)[-0-9.]+(.*)");
     var resultsArray = re.exec(this.element.innerHTML);
     this.element.innerHTML = resultsArray[1] + newNumber + resultsArray[2];
