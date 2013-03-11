@@ -138,15 +138,26 @@ function setBrowserIndependentProperty(div, property, value) {
  * This script section uses the second approach.
  */
 
-//function Wobbler(element, amplitude, skew) {
+/*
+function Wobbler(element, amplitude, skew) {
+	this.element = element;
+	this.n = 0;
+	this.interval;
+	this.amplitude = amplitude/2;
+	if (!skew) { this.skew = 0;	}
+		else { this.skew = skew; }
+	
+	var self = this;
+	this.idle();
+	$(this.element).mousedown(function() { self.stop(); });
+	$(document).mouseup(function() { self.idle(); });
+}
+*/
 function Wobbler(element, a1, a2) {
 	this.element = element;
 	this.n = 0;
 	this.interval;
-	//this.amplitude = amplitude/2;
 	this.amplitude = (Math.abs(a1)+Math.abs(a2))/2;
-	//if (!skew) { this.skew = 0;	}
-	//	else { this.skew = skew; }
 	this.skew = Math.abs(this.amplitude - Math.abs(a1));
 	
 	var self = this;
@@ -185,7 +196,7 @@ Wobbler.prototype.replaceNumber = function(newNumber) {
 var divs = document.getElementsByClassName("rotating");
 for(var i = 0; i < divs.length; i++) {
 	//var w = new Wobbler(divs[i], 20);
-	//var w = new Wobbler(divs[i], 10, 0);
+	//var w = new Wobbler(divs[i], 10, 90);
 	var w = new Wobbler(divs[i], 0, 90);
 }
 
