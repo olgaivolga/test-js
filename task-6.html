@@ -74,7 +74,7 @@ pre {
     the <a href="http://www.w3.org/TR/css3-transforms/">CSS3 Transforms</a> API.
 
     <!--div class="rotating non-selectable clickable example-box centered"
-         onmousedown="window.clearInterval(w.interval)" onmouseup="w.idle()"-->
+         onmousedown="window.clearInterval(w.interval)" onmouseup="w.start()"-->
     <div class="rotating non-selectable clickable example-box centered">
       This text is rotated at <b>0&deg;</b> angle. Try clicking it.
     </div>
@@ -140,18 +140,18 @@ function setBrowserIndependentProperty(div, property, value) {
  */
 
 /*
-function Wobbler(element, amplitude, skew) {
+function Wobbler(element, amplitude, slope) {
 	this.element = element;
 	this.n = 0;
 	this.interval;
 	this.amplitude = amplitude/2;
-	if (!skew) { this.skew = 0;	}
-		else { this.skew = skew; }
+	if (!slope) { this.slope = 0;	}
+		else { this.slope = slope; }
 	
 	var self = this;
-	this.idle();
+	this.start();
 	$(this.element).mousedown(function() { self.stop(); });
-	$(document).mouseup(function() { self.idle(); });
+	$(document).mouseup(function() { self.start(); });
 }
 */
 function Wobbler(element, a1, a2) {
@@ -159,17 +159,17 @@ function Wobbler(element, a1, a2) {
 	this.n = 0;
 	this.interval;
 	this.amplitude = (Math.abs(a1)+Math.abs(a2))/2;
-	//this.skew = Math.abs(this.amplitude - Math.abs(a1));
-	this.skew = (a1+a2)/2;
+	//this.slope = Math.abs(this.amplitude - Math.abs(a1));
+	this.slope = (a1+a2)/2;
 	this.replaceNumber(this.amplitude*2);
 	
 	var self = this;
-	this.idle();
+	this.start();
 	$(this.element).mousedown(function() { self.stop(); });
-	$(document).mouseup(function() { self.idle(); });
+	$(document).mouseup(function() { self.start(); });
 }
 
-Wobbler.prototype.idle = function() {
+Wobbler.prototype.start = function() {
 	var self = this;
 	self.stop();
 	this.interval = setInterval( function() { self.rotateElement(); }, 16);
@@ -181,7 +181,7 @@ Wobbler.prototype.stop = function() {
 }
 
 Wobbler.prototype.rotateElement = function() {
-	var rotateDegree = Math.sin(this.n/20)*this.amplitude + this.skew; 
+	var rotateDegree = Math.sin(this.n/20)*this.amplitude + this.slope; 
 	var rotateCSSProperty = "rotate(" + rotateDegree + "deg)";
 	setBrowserIndependentProperty(this.element, "transform", rotateCSSProperty);
 	this.n++;
@@ -196,11 +196,12 @@ Wobbler.prototype.replaceNumber = function(newNumber) {
 }
 
 var divs = document.getElementsByClassName("rotating");
-for(var i = 0; i < divs.length; i++) {
+//for(var i = 0; i < divs.length; i++) {
 	//var w = new Wobbler(divs[i], 20);
 	//var w = new Wobbler(divs[i], 10, 90);
-	var w = new Wobbler(divs[i], 0, -90);
-}
+	//var w = new Wobbler(divs[i], 0, -90);
+//}
+$(".rotating").each(function(i, div) { new Wobbler(div, 0, -90); });
 
 </script>
 
