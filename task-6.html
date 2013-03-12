@@ -78,6 +78,9 @@ pre {
     <div class="rotating non-selectable clickable example-box centered">
       This text is rotated at <b>0&deg;</b> angle. Try clicking it.
     </div>
+	<div class="rotating1 non-selectable clickable example-box centered">
+      This text is rotated at <b>0&deg;</b> angle. Try clicking it.
+    </div>
 
     Create a JavaScript object <code>Wobbler</code> which makes the given HTML element wobble like shown below.
     <div class="centered iframe-wrap vertically-spaced">
@@ -195,13 +198,14 @@ Wobbler.prototype.replaceNumber = function(newNumber) {
     this.element.innerHTML = resultsArray[1] + newNumber + resultsArray[2];
 }
 
-var divs = document.getElementsByClassName("rotating");
+//var divs = document.getElementsByClassName("rotating");
 //for(var i = 0; i < divs.length; i++) {
 	//var w = new Wobbler(divs[i], 20);
 	//var w = new Wobbler(divs[i], 10, 90);
 	//var w = new Wobbler(divs[i], 0, -90);
 //}
-$(".rotating").each(function(i, div) { new Wobbler(div, 0, -90); });
+$(".rotating").each(function(i, div) { new Wobbler(div, -10, 20); });
+$(".rotating1").each(function(i, div) { new Wobbler(div, -20, 10); });
 
 </script>
 
