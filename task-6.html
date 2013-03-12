@@ -165,15 +165,21 @@ function Wobbler(element, a1, a2) {
 	//this.slope = Math.abs(this.amplitude - Math.abs(a1));
 	this.slope = (a1+a2)/2;
 	this.replaceNumber(this.amplitude*2);
-	
+
 	var self = this;
 	this.start();
-	$(this.element).mousedown(function() { self.stop(); });
-	$(document).mouseup(function() { self.start(); });
+	$(this.element).on("mousedown.Wobbler", function() {
+		self.stop(); 
+		$(document).on("mouseup.Wobbler",  function() { 
+			self.start(); 
+			$(document).off("mouseup.Wobbler");
+			});
+		});
 }
 
 Wobbler.prototype.start = function() {
 	var self = this;
+	//console.log("restarting", this.element);
 	self.stop();
 	this.interval = setInterval( function() { self.rotateElement(); }, 16);
 	return this.interval;
