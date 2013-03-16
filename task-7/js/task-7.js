@@ -30,7 +30,7 @@ var Start = Backbone.View.extend({
         "click input:button": "check" // Обработчик клика на кнопке "Проверить"
     },
     check: function () {
-        if (this.el.find("input:text").val() == "test") // Проверка текста
+        if (this.$el.find("input:text").val() == "test") // Проверка текста
             controller.navigate("success", true); // переход на страницу success
         else
             controller.navigate("error", true); // переход на страницу error
