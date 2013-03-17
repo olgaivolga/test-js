@@ -1,13 +1,15 @@
 var AppState = { username: "" };
+var Family = ["Саша", "Юля", "Елизар"]; // Моя семья
 
 var Start = Backbone.View.extend({
     el: $("#block"), // DOM элемент widget'а
-    template: _.template(this.$('#start').html()),
+    template: _.template(this.$('#start').html()), //what is _?
     events: {
         "click input:button": "check", // Обработчик клика на кнопке "Проверить"
     },
     check: function () {
-        if (this.$("input:text").val() == "test") // Проверка текста
+        AppState.username = this.$("input:text").val(); // Сохранение имени пользователя
+        if (_.contains(Family, AppState.username))  
             router.navigate("!/success", true); // переход на страницу success
         else
             router.navigate("!/error", true); // переход на страницу error
