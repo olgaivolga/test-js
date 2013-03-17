@@ -1,14 +1,14 @@
-var Controller = Backbone.Router.extend({
+п»їvar Controller = Backbone.Router.extend({
     routes: {
-        "": "start", // Пустой hash-тэг
-        "!/": "start", // Начальная страница
-        "!/success": "success", // Блок удачи
-        "!/error": "error" // Блок ошибки
+        "": "start", // РџСѓСЃС‚РѕР№ hash-С‚СЌРі
+        "!/": "start", // РќР°С‡Р°Р»СЊРЅР°СЏ СЃС‚СЂР°РЅРёС†Р°
+        "!/success": "success", // Р‘Р»РѕРє СѓРґР°С‡Рё
+        "!/error": "error" // Р‘Р»РѕРє РѕС€РёР±РєРё
     },
 
     start: function () {
-        $(".block").hide(); // Прячем все блоки
-        $("#start").show(); // Показываем нужный /// why all links are displayed?
+        $(".block").hide(); // РџСЂСЏС‡РµРј РІСЃРµ Р±Р»РѕРєРё
+        $("#start").show(); // РџРѕРєР°Р·С‹РІР°РµРј РЅСѓР¶РЅС‹Р№ /// why all links are displayed?
     },
 
     success: function () {
@@ -22,22 +22,22 @@ var Controller = Backbone.Router.extend({
     }
 });
 
-var controller = new Controller(); // Создаём контроллер
+var controller = new Controller(); // РЎРѕР·РґР°С‘Рј РєРѕРЅС‚СЂРѕР»Р»РµСЂ
 
 var Start = Backbone.View.extend({
-    el: $("#start"), // DOM элемент widget'а
+    el: $("#start"), // DOM СЌР»РµРјРµРЅС‚ widget'Р°
     events: {
-        "click input:button": "check" // Обработчик клика на кнопке "Проверить"
+        "click input:button": "check" // РћР±СЂР°Р±РѕС‚С‡РёРє РєР»РёРєР° РЅР° РєРЅРѕРїРєРµ "РџСЂРѕРІРµСЂРёС‚СЊ"
     },
     check: function () {
-        if (this.$el.find("input:text").val() == "test") // Проверка текста
-            controller.navigate("!/success", true); // переход на страницу success
+        if (this.$el.find("input:text").val() == "test") // РџСЂРѕРІРµСЂРєР° С‚РµРєСЃС‚Р°
+            controller.navigate("!/success", true); // РїРµСЂРµС…РѕРґ РЅР° СЃС‚СЂР°РЅРёС†Сѓ success
         else
-            controller.navigate("!/error", true); // переход на страницу error
+            controller.navigate("!/error", true); // РїРµСЂРµС…РѕРґ РЅР° СЃС‚СЂР°РЅРёС†Сѓ error
     }
 });
 
 var start = new Start();
 
-Backbone.history.start();  // Запускаем HTML5 History push    
+Backbone.history.start();  // Р—Р°РїСѓСЃРєР°РµРј HTML5 History push    
 
