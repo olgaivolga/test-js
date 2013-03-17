@@ -1,4 +1,45 @@
-﻿var Controller = Backbone.Router.extend({
+var AppState = { username: "" };
+
+var Start = Backbone.View.extend({
+    el: $("#block"), // DOM элемент widget'а
+    template: _.template(this.$('#start').html()),
+    events: {
+        "click input:button": "check", // Обработчик клика на кнопке "Проверить"
+    },
+    check: function () {
+        if (this.$("input:text").val() == "test") // Проверка текста
+            router.navigate("!/success", true); // переход на страницу success
+        else
+            router.navigate("!/error", true); // переход на страницу error
+    },
+	render: function () {
+		this.$el.html(this.template());
+    }
+});
+
+var Success = Backbone.View.extend({
+    el: $("#block"), // DOM элемент widget'а
+    template: _.template(this.$('#success').html()),
+    render: function () {
+        this.$el.html(this.template(AppState));
+    }
+});
+
+var Error = Backbone.View.extend({
+    el: $("#block"), // DOM элемент widget'а
+    template: _.template(this.$('#error').html()),
+    render: function () {
+        this.$el.html(this.template(AppState));
+    }
+});
+
+Views = { 
+    start: new Start(),
+    success: new Success(),
+    error: new Error()
+};
+
+var AppRouter = Backbone.Router.extend({
     routes: {
         "": "start", // Пустой hash-тэг
         "!/": "start", // Начальная страница
@@ -7,37 +48,23 @@
     },
 
     start: function () {
-        $(".block").hide(); // Прячем все блоки
-        $("#start").show(); // Показываем нужный /// why all links are displayed?
+        if (Views.start != null) {
+            Views.start.render();
+        }
     },
 
     success: function () {
-        $(".block").hide();
-        $("#success").show();
+        if (Views.success != null) {
+            Views.success.render();
+        }
     },
 
     error: function () {
-        $(".block").hide();
-        $("#error").show();
+        if (Views.error != null) {
+            Views.error.render();
+        }
     }
 });
+var router = new AppRouter();
 
-var controller = new Controller(); // Создаём контроллер
-
-var Start = Backbone.View.extend({
-    el: $("#start"), // DOM элемент widget'а
-    events: {
-        "click input:button": "check" // Обработчик клика на кнопке "Проверить"
-    },
-    check: function () {
-        if (this.$el.find("input:text").val() == "test") // Проверка текста
-            controller.navigate("!/success", true); // переход на страницу success
-        else
-            controller.navigate("!/error", true); // переход на страницу error
-    }
-});
-
-var start = new Start();
-
-Backbone.history.start();  // Запускаем HTML5 History push    
-
+Backbone.history.start();
