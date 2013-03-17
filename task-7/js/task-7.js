@@ -31,9 +31,9 @@ var Start = Backbone.View.extend({
     },
     check: function () {
         if (this.$el.find("input:text").val() == "test") // Проверка текста
-            controller.navigate("success", true); // переход на страницу success
+            controller.navigate("!/success", true); // переход на страницу success
         else
-            controller.navigate("error", true); // переход на страницу error
+            controller.navigate("!/error", true); // переход на страницу error
     }
 });
 
