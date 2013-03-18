@@ -1,3 +1,25 @@
+var UserNameModel = Backbone.Model.extend({ // Модель пользователя
+   defaults: { 
+   "Name": "" 
+   }
+});
+
+var Family = Backbone.Collection.extend({
+    model: UserNameModel,
+    checkUser: function (username) { // Проверка пользователя
+        var found = this.find(function(user) {
+                return user.get("Name") == username
+        });
+        return found != null;
+    }
+});
+
+var myFamily = new Family([ // Моя семья
+    { Name: "Саша" },
+    { Name: "Юля" },
+    { Name: "Елизар" }
+]);
+
 var AppState = Backbone.Model.extend({
     defaults: {
         username: "",
@@ -6,8 +28,6 @@ var AppState = Backbone.Model.extend({
 });
 
 var appState = new AppState();
-
-var Family = ["Саша", "Юля", "Елизар"]; // Моя семья
 
 var Block = Backbone.View.extend({
     el: $("#block"), // DOM элемент widget'а
@@ -34,7 +54,7 @@ var Block = Backbone.View.extend({
 
     check: function () {
             var username = this.$("input:text").val();
-            var found = (_.contains(Family, username));
+			var found = myFamily.checkUser(username);
             appState.set({ // Сохранение имени пользователя и состояния
                 "state": found ? "success" : "error",
                 "username": username
