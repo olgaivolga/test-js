@@ -1,45 +1,49 @@
-var AppState = { username: "" };
+var AppState = Backbone.Model.extend({
+    defaults: {
+        username: "",
+        state: "start"
+    }
+});
+
+var appState = new AppState();
+
 var Family = ["Саша", "Юля", "Елизар"]; // Моя семья
 
-var Start = Backbone.View.extend({
+var Block = Backbone.View.extend({
     el: $("#block"), // DOM элемент widget'а
-    template: _.template(this.$('#start').html()), //what is _?
+
+    // templates for different states of this view.
+    templates: {
+        "start": _.template(this.$('#start').html()),
+        "success": _.template(this.$('#success').html()),
+        "error": _.template(this.$('#error').html())
+    },
+
+    initialize: function () { // Подписка на событие модели
+        this.model.bind('change', this.render, this);
+    },
+
+    render: function () {
+        var state = this.model.get("state");
+        this.$el.html(this.templates[state](this.model.toJSON()));
+    },
+
     events: {
         "click input:button": "check", // Обработчик клика на кнопке "Проверить"
     },
+
     check: function () {
-        AppState.username = this.$("input:text").val(); // Сохранение имени пользователя
-        if (_.contains(Family, AppState.username))  
-            router.navigate("!/success", true); // переход на страницу success
-        else
-            router.navigate("!/error", true); // переход на страницу error
-    },
-	render: function () {
-		this.$el.html(this.template());
+            var username = this.$("input:text").val();
+            var found = (_.contains(Family, username));
+            appState.set({ // Сохранение имени пользователя и состояния
+                "state": found ? "success" : "error",
+                "username": username
+            }); 
     }
 });
 
-var Success = Backbone.View.extend({
-    el: $("#block"), // DOM элемент widget'а
-    template: _.template(this.$('#success').html()),
-    render: function () {
-        this.$el.html(this.template(AppState));
-    }
-});
-
-var Error = Backbone.View.extend({
-    el: $("#block"), // DOM элемент widget'а
-    template: _.template(this.$('#error').html()),
-    render: function () {
-        this.$el.html(this.template(AppState));
-    }
-});
-
-Views = { 
-    start: new Start(),
-    success: new Success(),
-    error: new Error()
-};
+var block = new Block({ model: appState });
+appState.trigger("change");
 
 var AppRouter = Backbone.Router.extend({
     routes: {
@@ -50,23 +54,26 @@ var AppRouter = Backbone.Router.extend({
     },
 
     start: function () {
-        if (Views.start != null) {
-            Views.start.render();
-        }
+        appState.set({ state: "start" });
     },
 
     success: function () {
-        if (Views.success != null) {
-            Views.success.render();
-        }
+        appState.set({ state: "success" });
     },
 
     error: function () {
-        if (Views.error != null) {
-            Views.error.render();
-        }
+        appState.set({ state: "error" });
     }
 });
 var router = new AppRouter();
+
+appState.bind("change:state", function () { // подписка на смену состояния для роутера
+    var state = this.get("state");
+    if (state == "start")
+        router.navigate("!/", false); // false потому, что нам не надо 
+                                          // вызывать обработчик у Router
+    else
+        router.navigate("!/" + state, false);
+});
 
 Backbone.history.start();
