@@ -83,6 +83,8 @@ var RestaurantModel = GenericRestaurantModel.extend({
                     //visitors.remove(v);
                     if (GenericRestaurantModel.prototype.visitorLeft.call(this)) 
 						visitors.remove(v);
+					if (this.attributes.currentOccupancy == 0)
+						GenericRestaurantModel.prototype.closeRestaurant.call(this)
                 } else {
                     return false;
                 }

@@ -8,7 +8,7 @@ var GenericRestaurantModel = Backbone.Model.extend({
     validate: function(attributes) {
         switch(attributes.state) {
         case "open":
-            if(attributes.currentOccupancy < 0)
+            if(attributes.currentOccupancy < 0) 
                 return "Number of visitors must not be negative";
             break;
         case "closed":
