@@ -21,8 +21,11 @@
 <script id="restaurant-message" type="text/underscore-template">
 Restaurant “<%- restaurantName %>” is <b><%- state %></b>.
 Occupancy: “<%- currentOccupancy %>”
+<button id="visitor-add">Add</button>
+<button id="visitor-remove">Remove</button>
+<button id="open-rest">Open</button>
 </script>
-<script id="visitor-add" type="text/underscore-template">
+<script class="visitor-add" type="text/underscore-template">
 Add
 </script>
 <script id="visitor-remove" type="text/underscore-template">
@@ -97,8 +100,9 @@ var RestaurantView = Backbone.View.extend({
   // Кэшируем шаблон, данный нам в известном script-блоке.
   tmpl: _.template($("#restaurant-message").html()),
   events: {
-    //"click": "do_close",
-	"click": "do_open" //открыть по клику на данном View
+	"click #open-rest": "do_open", //открыть снова
+	"click #visitor-add" : "do_add",
+	"click #visitor-remove": "do_remove",
   },   
   initialize: function() {
     this.listenTo(this.model, "change", this.render);
@@ -115,48 +119,23 @@ var RestaurantView = Backbone.View.extend({
   do_open: function() {
 	this.model.openRestaurant();
 	return this;
-}
-});
-
-//Создать View для кнопки Add
-var VisitorAddView = Backbone.View.extend({
-	tagName: "button",
-	tmpl: _.template($("#visitor-add").html()),
-	events: {"click": "do_add"},
-	render: function() {
-		this.$el.html(this.tmpl(this.model.attributes));
-		return this;    // Рекомендуется.
-	},
-	do_add: function() {
-		//var random = Math.random().toString(36).substring(7);
-		//var v = new Visitor({ title: random });
-		this.model.visitorCame(v);
-	}
-});
-//Создать View для кнопки Remove
-var VisitorRemoveView = Backbone.View.extend({
-	tagName: "button",
-	tmpl: _.template($("#visitor-remove").html()),
-	events: {"click": "do_remove"},
-	render: function() {
-		this.$el.html(this.tmpl(this.model.attributes));
-		return this;    // Рекомендуется.
-	},
-	do_remove: function() {
-		this.model.visitorLeft(v);
-	}
+  },
+  do_add: function() {
+	//var random = Math.random().toString(36).substring(7);
+	//var v = new Visitor({ title: random });
+	this.model.visitorCame(v);
+  },
+  do_remove: function() {
+	this.model.visitorLeft(v);
+  }
 });
 
 // Создать конкретный ресторан и конкретного посетителя.
 var r = new RestaurantModel({ restaurantName: "У Озера" });
 var v = new Visitor({ firstName: "Онуфрий", title: "Отец" });
 var restView = new RestaurantView({ model: r });
-var visAddView = new VisitorAddView({ model: r });
-var visRemView = new VisitorRemoveView({ model: r });
 
 $("body").append(restView.el);
-$("body").append(visAddView.el);
-$("body").append(visRemView.el);
 
 </script>
 
