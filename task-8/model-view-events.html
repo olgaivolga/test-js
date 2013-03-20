@@ -40,7 +40,7 @@ var Visitor = Backbone.Model.extend({
                         if(this.get("title")) {
                             console.log("Visitor “"
                                         + this.get("title") + " "
-                                        + this.get("firstName")
+                                        //+ this.get("firstName")
                                         + "” checked in at “"
                                         + venue + "”");
                         }
@@ -129,7 +129,7 @@ var VisitorAddView = Backbone.View.extend({
 	},
 	do_add: function() {
 		//var random = Math.random().toString(36).substring(7);
-		//var v = new Visitor({ name: random });
+		//var v = new Visitor({ title: random });
 		this.model.visitorCame(v);
 	}
 });
