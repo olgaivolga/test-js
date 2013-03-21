@@ -88,7 +88,8 @@ var RestaurantModel = GenericRestaurantModel.extend({
                 if(v) {
                     //visitors.remove(v);
                     if (GenericRestaurantModel.prototype.visitorLeft.call(this)) 
-						visitors.remove(v);
+						//visitors.remove(v);
+						visitors.pop();
 					if (this.attributes.currentOccupancy == 0)
 						GenericRestaurantModel.prototype.closeRestaurant.call(this)
                 } else {
@@ -123,17 +124,14 @@ var RestaurantView = Backbone.View.extend({
 	return this;
   },
   do_add: function() {
-	index++;
 	var random = Math.random().toString(36).substring(7);
-	var v = new Visitor({ title: random, at: index });
+	var v = new Visitor({ title: random});
 	this.model.visitorCame(v);
   },
   do_remove: function() {
 	//this.model.visitorLeft(v);
-	if (index > 0) {
+	if (this.model.get("currentOccupancy") > 0) {
 		this.model.visitorLeft();
-		index--;
-		console.log(index);
 	}
   }
 });
