@@ -9,7 +9,7 @@
 <style>
 .restaurantClass {
     width: 300px;
-    height: 50px;
+    //height: 50px;
     border: solid 1px darkred;
     background-color: #faa;
     padding: 10px;
@@ -19,8 +19,9 @@
 <body>
 
 <script id="restaurant-message" type="text/underscore-template">
-Restaurant “<%- restaurantName %>” is <b><%- state %></b>.
-Occupancy: “<%- currentOccupancy %>”
+Restaurant “<%- restaurantName %>” is <b><%- state %></b>.<br>
+Occupancy: “<%- currentOccupancy %>”<br>
+Restaurant is open until the last guest leaves.
 <button id="visitor-add">Add</button>
 <button id="visitor-remove">Remove</button>
 <button id="open-rest">Open</button>
@@ -82,7 +83,8 @@ var RestaurantModel = GenericRestaurantModel.extend({
 
             visitorLeft: function(visitor) {
                 var visitors = this.get("visitors");
-                var v = visitors.get(visitor);
+                //var v = visitors.get(visitor);
+				var v = visitors.where({at : index});
                 if(v) {
                     //visitors.remove(v);
                     if (GenericRestaurantModel.prototype.visitorLeft.call(this)) 
@@ -121,18 +123,25 @@ var RestaurantView = Backbone.View.extend({
 	return this;
   },
   do_add: function() {
-	//var random = Math.random().toString(36).substring(7);
-	//var v = new Visitor({ title: random });
+	index++;
+	var random = Math.random().toString(36).substring(7);
+	var v = new Visitor({ title: random, at: index });
 	this.model.visitorCame(v);
   },
   do_remove: function() {
-	this.model.visitorLeft(v);
+	//this.model.visitorLeft(v);
+	if (index > 0) {
+		this.model.visitorLeft();
+		index--;
+		console.log(index);
+	}
   }
 });
 
+var index = 0;
 // Создать конкретный ресторан и конкретного посетителя.
 var r = new RestaurantModel({ restaurantName: "У Озера" });
-var v = new Visitor({ firstName: "Онуфрий", title: "Отец" });
+//var v = new Visitor({ firstName: "Онуфрий", title: "Отец" });
 var restView = new RestaurantView({ model: r });
 
 $("body").append(restView.el);
