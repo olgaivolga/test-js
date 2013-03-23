@@ -28,9 +28,11 @@ Restaurant is open until the last guest leaves.<br>
 <div class="Visitors">Visitors</div>
 <br>
 </script>
+
 <script id="visitor-box" type="text/underscore-template">
 <%- vcid %>
 </script>
+
 <h2>Backbone's View</h2>
 
 <script>
@@ -73,7 +75,7 @@ var RestaurantModel = GenericRestaurantModel.extend({
 					visitor.vcid();	//console.log(visitor.get("vcid"))
 					//Draw visitor 
 					var visView = new VisitorView({ model: visitor });
-					$(".Visitors").append(visView.el);
+					$("#"+this.get("restaurantName")).append(visView.el);
                 }, this);
             },
 
@@ -119,7 +121,7 @@ var RestaurantView = Backbone.View.extend({
   },
   // обновить this.el новым содержимым.
   render: function() {
-    this.$el.html(this.tmpl(this.model.attributes));
+    this.$el.html(this.tmpl(this.model.attributes)).attr('id', this.model.get("restaurantName"));
     return this;    // Рекомендуется.
   },
   do_close: function() {
@@ -163,8 +165,8 @@ var VisitorView = Backbone.View.extend({
 });
 
 // Создать конкретный ресторан и конкретного посетителя.
-var r1 = new RestaurantModel({ restaurantName: "У Озера" });
-var r2 = new RestaurantModel({ restaurantName: "Дикая утка" });
+var r1 = new RestaurantModel({ restaurantName: "У_Озера" });
+var r2 = new RestaurantModel({ restaurantName: "Дикая_утка" });
 var restView1 = new RestaurantView({ model: r1 });
 var restView2 = new RestaurantView({ model: r2 });
 $("body").append(restView1.el);
