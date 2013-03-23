@@ -75,7 +75,7 @@ var RestaurantModel = GenericRestaurantModel.extend({
 					visitor.vcid();	//console.log(visitor.get("vcid"))
 					//Draw visitor 
 					var visView = new VisitorView({ model: visitor });
-					$("#"+this.get("restaurantName")).append(visView.el);
+					//$("#"+this.get("restaurantName")).append(visView.el);
                 }, this);
             },
 
@@ -106,47 +106,53 @@ var RestaurantModel = GenericRestaurantModel.extend({
         });
 
 var RestaurantView = Backbone.View.extend({
-  className: "restaurantClass",
-  // Кэшируем шаблон, данный нам в известном script-блоке.
-  tmpl: _.template($("#restaurant-message").html()),
-  events: {
-	"click #open-rest": "do_open", //открыть снова
-	"click #visitor-add" : "do_add",
-	"click #visitor-remove": "do_remove", //remove last visitor
-	"click .visitor": "do_remove" //remove specific visitor
-  },   
-  initialize: function() {
-    this.listenTo(this.model, "change", this.render);
-    this.render();
-  },
-  // обновить this.el новым содержимым.
-  render: function() {
-    this.$el.html(this.tmpl(this.model.attributes)).attr('id', this.model.get("restaurantName"));
-    return this;    // Рекомендуется.
-  },
-  do_close: function() {
-    this.model.closeRestaurant();
-	return this;
-  },
-  do_open: function() {
-	this.model.openRestaurant();
-	return this;
-  },
-  do_add: function() {
-	var random = Math.random().toString(36).substring(7);
-	var v = new Visitor({ title: random});
-	this.model.visitorCame(v);
-	//Now draw new visitor from RestaurantModel using different View 
-  },
-  do_remove: function(clicked) {
-	//Get html element id
-	var id = $(clicked.currentTarget).attr("id");
-	//Look in collection
-    var v = this.model.get("visitors").get(id);
-	if (this.model.get("currentOccupancy") > 0) {
-		this.model.visitorLeft(v);
+	className: "restaurantClass",
+	// Кэшируем шаблон, данный нам в известном script-блоке.
+	tmpl: _.template($("#restaurant-message").html()),
+	events: {
+		"click #open-rest": "do_open", //открыть снова
+		"click #visitor-add" : "do_add",
+		"click #visitor-remove": "do_remove", //remove last visitor
+		"click .visitor": "do_remove" //remove specific visitor
+	},   
+	initialize: function() {
+		this.listenTo(this.model, "change", this.render);
+		this.render();
+	},
+	// обновить this.el новым содержимым.
+	render: function() {
+		//console.log("R:render");
+		this.$el.html(this.tmpl(this.model.attributes)).attr('id', this.model.get("restaurantName"));
+		var self = this;
+		this.model.get("visitors").each(function() {
+			self.$el.append(this.VisitorView.render().el);
+		})
+		return this;    // Рекомендуется.
+	},
+	do_close: function() {
+		this.model.closeRestaurant();
+		return this;
+	},
+	do_open: function() {
+		this.model.openRestaurant();
+		return this;
+	},
+	do_add: function() {
+		//console.log("R:do_add");
+		var random = Math.random().toString(36).substring(7);
+		var v = new Visitor({ title: random});
+		this.model.visitorCame(v);
+		//Now draw new visitor from RestaurantModel using different View 
+	},
+	do_remove: function(clicked) {
+		//Get html element id
+		var id = $(clicked.currentTarget).attr("id");
+		//Look in collection
+		var v = this.model.get("visitors").get(id);
+		if (this.model.get("currentOccupancy") > 0) {
+			this.model.visitorLeft(v);
+		}
 	}
-  }
 });
 
 //Create view for a visitor 
@@ -158,6 +164,7 @@ var VisitorView = Backbone.View.extend({
 		this.render();
 	},
 	render: function() {
+		//console.log("V:render");
 		this.$el.html(this.tmpl(this.model.attributes));
 		this.$el.attr('id', this.model.get("vcid")).addClass("visitor");
 		return this;
