@@ -60,16 +60,25 @@ var RestaurantModel = GenericRestaurantModel.extend({
                 var visitors = new VisitorsList;
                 this.set("visitors", visitors);
 
-			visitors.on("add", function(visitor) {
+				/*visitors.on("add", function(visitor) {
                     visitor.checkin(this.get("restaurantName"));
-                }, this);
+                }, this);*/
+				// To trigger "change" in RestaurantModel, 
+				// otherwise add this.set() in visitorCame(), visitorLeft()
+				// because changin viisitors model attrs != changing attr of a resturant 
+				var self = this;
+				visitors.on("add remove", function(){
+					self.trigger("change");
+				})
             },
 
             visitorCame: function(visitor) {
                 // Два раза в один и тот же ресторан не войти.
                 if(!this.get("visitors").get(visitor)) {
-                    if (GenericRestaurantModel.prototype.visitorCame.call(this))
+                    if (GenericRestaurantModel.prototype.visitorCame.call(this)) {
+						visitor.checkin(this.get("restaurantName"));
 						this.get("visitors").add(visitor);
+					}
                 }
             },
 
@@ -81,8 +90,8 @@ var RestaurantModel = GenericRestaurantModel.extend({
 						visitors.remove(v);
 				} else { // if visitor is not defined
 					if (GenericRestaurantModel.prototype.visitorLeft.call(this))
-						var removed = visitors.pop();
-						//console.log(removed.cid);
+						var v = visitors.pop();
+						//console.log(v.cid);
 				}
 				// State "closing" means the restaurant will close when last visitor leaves. 
 				// New visitors allowed...
@@ -113,8 +122,6 @@ var RestaurantView = Backbone.View.extend({
 		this.$el.html(this.tmpl(this.model.attributes)).attr('id', this.model.get("restaurantName"));
 		var self = this;
 		this.model.get("visitors").each(function(visitor) {
-			console.log("Execute foreach");
-			console.log(visitor);
 			self.$el.append(visitor.view.el);
 		})
 		return this;   
@@ -138,7 +145,6 @@ var RestaurantView = Backbone.View.extend({
 		var id = $(clicked.currentTarget).attr("id");
 		//Look in collection
 		var v = this.model.get("visitors").get(id);
-		console.log(v);
 		if (this.model.get("currentOccupancy") > 0) {
 			this.model.visitorLeft(v);
 		}
@@ -148,22 +154,22 @@ var RestaurantView = Backbone.View.extend({
 //Create view for a visitor 
 var VisitorView = Backbone.View.extend({
 	tagName : 'button',
-	//className: "visitor",
+	className: "visitor",
 	tmpl: _.template($("#visitor-box").html()),
 	initialize: function() {
-		this.listenTo(this.model, "change", this.render);
-		//this.render();
+		//this.listenTo(this.model, "change", this.render);
+		this.render();
 	},
 	render: function() {
 		console.log("RENDER VIEW:"+this.model.get("vcid"));
 		this.$el.html(this.tmpl(this.model.attributes));
-		this.$el.attr('id', this.model.get("vcid")).addClass("visitor");
+		this.$el.attr('id', this.model.get("vcid"));
 		return this;
 	}
 });
 
 // Создать конкретный ресторан.
-var r1 = new RestaurantModel({ restaurantName: "У_Озера" }); //jQuery hates spaces...
+var r1 = new RestaurantModel({ restaurantName: "У_Озера" }); //jQuery hates spaces, use unique ids
 var r2 = new RestaurantModel({ restaurantName: "Дикая_утка" });
 var restView1 = new RestaurantView({ model: r1 });
 var restView2 = new RestaurantView({ model: r2 });
