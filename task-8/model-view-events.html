@@ -115,7 +115,7 @@ var RestaurantView = Backbone.View.extend({
 		this.model.get("visitors").each(function(visitor) {
 			console.log("Execute foreach");
 			console.log(visitor);
-			self.$el.append(visitor.view.render().el);
+			self.$el.append(visitor.view.el);
 		})
 		return this;   
 	},
@@ -138,6 +138,7 @@ var RestaurantView = Backbone.View.extend({
 		var id = $(clicked.currentTarget).attr("id");
 		//Look in collection
 		var v = this.model.get("visitors").get(id);
+		console.log(v);
 		if (this.model.get("currentOccupancy") > 0) {
 			this.model.visitorLeft(v);
 		}
@@ -147,10 +148,11 @@ var RestaurantView = Backbone.View.extend({
 //Create view for a visitor 
 var VisitorView = Backbone.View.extend({
 	tagName : 'button',
+	//className: "visitor",
 	tmpl: _.template($("#visitor-box").html()),
 	initialize: function() {
 		this.listenTo(this.model, "change", this.render);
-		this.render();
+		//this.render();
 	},
 	render: function() {
 		console.log("RENDER VIEW:"+this.model.get("vcid"));
