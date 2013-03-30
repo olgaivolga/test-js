@@ -6,6 +6,7 @@
 <script src="js/json2.js"></script>
 <script src="js/backbone-0.9.10.js"></script>
 <!--script src="my/generic-restaurant-model.js"></script-->
+<script src="http://www.parsecdn.com/js/parse-1.2.2.min.js"></script>
 <style>
 .restaurantClass {
     width: 300px;
@@ -37,17 +38,29 @@ Restaurant is open until the last guest leaves.<br>
 <h2>Backbone's View</h2>
 
 <script>
+/*
+Parse.initialize("aBVFDLZ1bywHY65yQtsAv57Qbgr3O2xZBnHzt8SJ", "17L7goDV12MLrs6uDCaXx5xw8bFiT5C1RUoTHc6A");
+var TestObject = Parse.Object.extend("TestObject");
+var testObject = new TestObject();
+testObject.save({foo: "bar"}, {
+  success: function(object) {
+    alert("yay! it worked");
+  }
+});
+*/
+
 var Visitor = Backbone.Model.extend({
 	defaults: { lastFoursquareCheckin: "", vcid: "" },
-	initialize: function() { //Copy cid to attributes
+	urlRoot: "/visitors",
+	initialize: function() { 
 		this.set("vcid", this.cid );
 	},
 	checkin: function(venue) { //Chekin user at restaurant
 		this.set("lastFoursquareCheckin", venue);
-			if(this.get("title")) {
+			if (this.attributes.title) {
 				console.log("Visitor “"
-								+ this.get("title") + " "
-								+ this.get("vcid")
+								+ this.attributes.title + " "
+								+ this.attributes.vcid
 								+ "” checked in at “"
 								+ venue + "”");
 			}
@@ -63,16 +76,17 @@ var RestaurantModel = Backbone.Model.extend({
 		state: "open",
 		maxOccupancy: 0
 	},
-
+	
 	initialize: function() {
 		var visitors = new VisitorsList;
 		this.set("visitors", visitors);
-
-		// Trigger "change" in RestaurantModel, 
-		var self = this;
+		this.set("rcid", this.cid );
+		// Propagate "change" to RestaurantModel
+		// Not necessary if RestaurantModel attributes are changed along with a Visitor
+		/*var self = this;
 		visitors.on("add remove", function(){
 			self.trigger("change");
-		})
+		})*/
 	},
 
 	validate: function(attributes) {
@@ -95,34 +109,37 @@ var RestaurantModel = Backbone.Model.extend({
 	},
 
 	visitorCame: function(visitor) {
-		if(this.get('state') != "closed" && !this.get('visitors').get(visitor)) {
-			visitor.checkin(this.get('restaurantName'));
-			this.get('visitors').add(visitor);
-			this.set({currentOccupancy: this.get('currentOccupancy') + 1 });
+		if (this.attributes.state != "closed" && !this.attributes.visitors.get(visitor)) {
+			visitor.checkin(this.attributes.restaurantName);
+			this.attributes.visitors.add(visitor);
+			this.set({currentOccupancy: this.attributes.currentOccupancy + 1});
+			this.request("", "post");
+			this.request(this.attributes.rcid, "get")
+			this.request("", "put");
 			return visitor;
 		}
 		return false;
 	},
 
 	visitorLeft: function(visitor) {
-		var visitors = this.get('visitors');
+		var visitors = this.attributes.visitors;
 		var v = visitors.get(visitor);
 		if(v) {
 			visitors.remove(v);
-			this.set({currentOccupancy: this.get('currentOccupancy') - 1 });
+			this.set({currentOccupancy: this.attributes.currentOccupancy - 1});
 		} else {
 			visitors.pop();
-			this.set({currentOccupancy: this.get('currentOccupancy') - 1 });
+			this.set({currentOccupancy: this.attributes.currentOccupancy - 1});
 		}
-		if(this.get('currentOccupancy') == 0 && this.get('state') == "closing") {
+		if(this.attributes.currentOccupancy == 0 && this.attributes.state == "closing") {
 			this.closeRestaurant();
 		}
 	},
 
 	openRestaurant: function() {
-		var visitors = this.get('visitors');
-		if(this.get('state') == "closed") {
-			return this.set({'state': "open", 'currentOccupancy': 0}, {validate: true});
+		var visitors = this.attributes.visitors;
+		if(this.attributes.state == "closed") {
+			return this.set({state: "open", currentOccupancy: 0}, {validate: true});
 		} else {
 			console.log("Cannot open unclosed restaurant");
 			return false;
@@ -130,17 +147,57 @@ var RestaurantModel = Backbone.Model.extend({
 	},
 
 	closeRestaurant: function() {
-		if(this.get('state') != "closed") {
-			if(this.get('currentOccupancy') == 0) {
-				this.set({'state': "closed"}, {validate: true});
+		if(this.attributes.state != "closed") {
+			if(this.attributes.currentOccupancy == 0) {
+				this.set({state: "closed"}, {validate: true});
+				this.get(this.attributes.rcid);
 			} else {
-				this.set({'state': "closing"}, {validate: true});
+				this.set({state: "closing"}, {validate: true});
 			}
 			return this;
 		}
 		return false;
-	}
+	},
 	
+	setHeader: function (xhr) {
+		xhr.setRequestHeader('X-Parse-Application-Id', 'aBVFDLZ1bywHY65yQtsAv57Qbgr3O2xZBnHzt8SJ');
+		xhr.setRequestHeader('X-Parse-REST-API-Key', '2wrecY9xNFu00RdPIDMRB0agtg6947zOOGFi6DCl');
+		xhr.setRequestHeader('Content-Type', 'application/json');
+		//xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
+		return xhr;
+	},
+		
+	request: function(objectId, type) {
+		var value;
+		switch (type) {
+		case "post":
+			//var value = JSON.stringify({});
+			value = JSON.stringify(this);
+			break;
+		case "put":
+			value = JSON.stringify(this);
+			break;
+		case "get":
+			value = JSON.stringify({ 'rcid' : objectId });
+			break;
+		default:
+			break;
+		}
+		$.ajax({
+			url: "https://api.parse.com/1/classes/restaurant",
+			type: type,
+			dataType: 'json',
+			data: value,
+			beforeSend: this.setHeader,
+			success: function(jsonData){
+				console.log(type, " request successful");
+				console.log("result: ", jsonData);
+			},
+			error:function(){
+				console.log(type, " request failed");
+			}   
+		}); 		
+	}	
 });
 
 var RestaurantView = Backbone.View.extend({
@@ -158,11 +215,11 @@ var RestaurantView = Backbone.View.extend({
 		this.render();
 	},
 	render: function() {
-		console.log("RENDER:"+this.model.get("restaurantName"));
-		this.$el.html(this.tmpl(this.model.attributes)).attr('id', this.model.get("restaurantName"));
+		console.log("RENDER:"+this.model.attributes.restaurantName);
+		this.$el.html(this.tmpl(this.model.attributes)).attr('id', this.model.attributes.rcid);
 		//Render visitors
 		var self = this;
-		this.model.get("visitors").each(function(visitor) {
+		this.model.attributes.visitors.each(function(visitor) {
 			self.$el.append(visitor.view.el);
 		})
 		return this;   
@@ -183,8 +240,8 @@ var RestaurantView = Backbone.View.extend({
 	},
 	do_remove: function(clicked) {
 		var id = $(clicked.currentTarget).attr("id");
-		var v = this.model.get("visitors").get(id);
-		if (this.model.get("currentOccupancy") > 0) {
+		var v = this.model.attributes.visitors.get(id);
+		if (this.model.attributes.currentOccupancy > 0) {
 			this.model.visitorLeft(v);
 		}
 	}
@@ -198,16 +255,16 @@ var VisitorView = Backbone.View.extend({
 		this.render();
 	},
 	render: function() {
-		console.log("RENDER VIEW:"+this.model.get("vcid"));
+		console.log("RENDER VIEW:"+this.model.attributes.vcid);
 		this.$el.html(this.tmpl(this.model.attributes));
-		this.$el.attr('id', this.model.get("vcid"));
+		this.$el.attr('id', this.model.attributes.vcid);
 		return this;
 	}
 });
 
 // Создать конкретный ресторан.
-var r1 = new RestaurantModel({ restaurantName: "У_Озера" }); //jQuery hates spaces, use unique ids
-var r2 = new RestaurantModel({ restaurantName: "Дикая_утка" });
+var r1 = new RestaurantModel({ restaurantName: "У Озера" }); 
+var r2 = new RestaurantModel({ restaurantName: "Дикая утка" });
 var restView1 = new RestaurantView({ model: r1 });
 var restView2 = new RestaurantView({ model: r2 });
 $("body").append(restView1.el);
