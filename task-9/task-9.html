@@ -63,7 +63,7 @@ function Request(object, type, requestHandler) {
 		url = "https://api.parse.com/1/classes/restaurant";
 		switch (type) {
 		case "post":
-			var value = JSON.stringify({ 'rcid' : object.attributes.rcid, 'restaurantName': object.attributes.restaurantName, 'state':  object.attributes.state});
+			var value = JSON.stringify({ 'rcid' : object.attributes.rcid, 'currentOccupancy': 0, 'restaurantName': object.attributes.restaurantName, 'state':  object.attributes.state});
 			break;
 		case "put":
 			value = JSON.stringify(object);
@@ -110,7 +110,7 @@ var VisitorsList = Backbone.Collection.extend({ model: Visitor });
 
 var RestaurantModel = Backbone.Model.extend({
 
-	defaults: {
+	defaults: { // can mess with GET!
 		currentOccupancy: 0,
 		//name: "",
 		//parseObjectId: "",
@@ -183,7 +183,7 @@ var RestaurantModel = Backbone.Model.extend({
 			if (jsonData.results[0].currentOccupancy) { 
 			// if the list of restaurants of particular model is not empty (we always need one anyway)
 				this.set({currentOccupancy: jsonData.results[0].currentOccupancy});
-				this.set({state: jsonData.results[0].state});
+				this.set({state: jsonData.results[0].state}); 
 				//this.set({visitors: jsonData.results[0].visitors}); //does not work
 			}
 		} else {
@@ -249,7 +249,7 @@ var RestaurantView = Backbone.View.extend({
 		this.render();
 	},
 	render: function() {
-		console.log("RENDER:"+this.model.attributes.restaurantName);
+		//console.log("RENDER:"+this.model.attributes.restaurantName);
 		this.$el.html(this.tmpl(this.model.attributes)).attr('id', this.model.attributes.rcid);
 		//Render visitors
 		var self = this;
@@ -289,7 +289,7 @@ var VisitorView = Backbone.View.extend({
 		this.render();
 	},
 	render: function() {
-		console.log("RENDER VIEW:"+this.model.attributes.vcid);
+		//console.log("RENDER VIEW:"+this.model.attributes.vcid);
 		this.$el.html(this.tmpl(this.model.attributes));
 		this.$el.attr('id', this.model.attributes.vcid);
 		return this;
