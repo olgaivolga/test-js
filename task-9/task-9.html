@@ -63,7 +63,12 @@ function Request(object, type, requestHandler) {
 		url = "https://api.parse.com/1/classes/restaurant";
 		switch (type) {
 		case "post":
-			var value = JSON.stringify({ 'rcid' : object.attributes.rcid, 'currentOccupancy': 0, 'restaurantName': object.attributes.restaurantName, 'state':  object.attributes.state});
+			var value = JSON.stringify({ 
+				'rcid' : object.attributes.rcid, 
+				'currentOccupancy': 0, 
+				'restaurantName': object.attributes.restaurantName, 
+				'state':  object.attributes.state
+			});
 			break;
 		case "put":
 			value = JSON.stringify(object);
@@ -95,7 +100,7 @@ var Visitor = Backbone.Model.extend({
 	initialize: function() { 
 		this.set("vcid", this.cid );
 	},
-	checkin: function(venue) { //Chekin user at restaurant
+	checkin: function(venue) { //Checkin user at restaurant
 		this.set("lastFoursquareCheckin", venue);
 			if (this.attributes.title) {
 				console.log("Visitor “"
