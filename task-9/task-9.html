@@ -49,6 +49,46 @@ testObject.save({foo: "bar"}, {
 });
 */
 
+function setHeader(xhr) {
+		xhr.setRequestHeader('X-Parse-Application-Id', 'aBVFDLZ1bywHY65yQtsAv57Qbgr3O2xZBnHzt8SJ');
+		xhr.setRequestHeader('X-Parse-REST-API-Key', '2wrecY9xNFu00RdPIDMRB0agtg6947zOOGFi6DCl');
+		xhr.setRequestHeader('Content-Type', 'application/json');
+		//xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
+		return xhr;
+}
+		
+function Request(object, type, requestHandler) {
+		var value;
+		var data;
+		url = "https://api.parse.com/1/classes/restaurant";
+		switch (type) {
+		case "post":
+			var value = JSON.stringify({ 'rcid' : object.attributes.rcid, 'restaurantName': object.attributes.restaurantName, 'state':  object.attributes.state});
+			break;
+		case "put":
+			value = JSON.stringify(object);
+			url = "https://api.parse.com/1/classes/restaurant/" + object.attributes.parseObjectId;
+			break;
+		case "get":
+			value = jQuery.param({ 'where': JSON.stringify({'rcid' : object.attributes.rcid })});
+			url = "https://api.parse.com/1/classes/restaurant?" + value;
+			break;
+		default:
+			break;
+		}
+		$.ajax({
+			url: url,
+			type: type,
+			dataType: 'json',
+			data: value,
+			beforeSend: setHeader,
+			success: requestHandler,
+			error:function(){
+				console.log(type, " request failed");
+			}   
+		});
+}	
+
 var Visitor = Backbone.Model.extend({
 	defaults: { lastFoursquareCheckin: "", vcid: "" },
 	urlRoot: "/visitors",
@@ -72,12 +112,13 @@ var RestaurantModel = Backbone.Model.extend({
 
 	defaults: {
 		currentOccupancy: 0,
-		name: "",
-		state: "open",
-		maxOccupancy: 0
+		//name: "",
+		//parseObjectId: "",
+		state: "open"
 	},
 	
 	initialize: function() {
+		_.bindAll(this); //because request handlers loose context
 		var visitors = new VisitorsList;
 		this.set("visitors", visitors);
 		this.set("rcid", this.cid );
@@ -87,6 +128,12 @@ var RestaurantModel = Backbone.Model.extend({
 		visitors.on("add remove", function(){
 			self.trigger("change");
 		})*/
+		//Load values 
+		Request(this, "get", this.getRequestHandler);
+		//Update restaurant on model change
+		this.on('change', function() {
+			Request(this, "put", this.putRequestHandler);
+		}, this)
 	},
 
 	validate: function(attributes) {
@@ -113,12 +160,38 @@ var RestaurantModel = Backbone.Model.extend({
 			visitor.checkin(this.attributes.restaurantName);
 			this.attributes.visitors.add(visitor);
 			this.set({currentOccupancy: this.attributes.currentOccupancy + 1});
-			this.request("", "post");
-			this.request(this.attributes.rcid, "get")
-			this.request("", "put");
 			return visitor;
 		}
 		return false;
+	},
+	
+	postRequestHandler: function(jsonData) {
+		console.log("POST result: ", jsonData);
+		//Initial post, to save API objectId
+		this.set({parseObjectId: jsonData.objectId});
+		return jsonData;
+	},
+	putRequestHandler: function(jsonData) {
+		console.log("PUT result: ", jsonData);
+		return jsonData;
+	},
+	getRequestHandler: function(jsonData) {
+		console.log("GET result: ", jsonData);
+		if (jsonData.results.length > 0) {
+			console.log("Restaurant exists on parse.com"); 
+			this.set({parseObjectId: jsonData.results[0].objectId}); //using index is bad!
+			if (jsonData.results[0].currentOccupancy) { 
+			// if the list of restaurants of particular model is not empty (we always need one anyway)
+				this.set({currentOccupancy: jsonData.results[0].currentOccupancy});
+				this.set({state: jsonData.results[0].state});
+				//this.set({visitors: jsonData.results[0].visitors}); //does not work
+			}
+		} else {
+			console.log("Restaurant does not exist on parse.com");
+			//Create empty restaurant
+			Request(this, "post", this.postRequestHandler);
+		}
+		return jsonData;
 	},
 
 	visitorLeft: function(visitor) {
@@ -158,46 +231,7 @@ var RestaurantModel = Backbone.Model.extend({
 		}
 		return false;
 	},
-	
-	setHeader: function (xhr) {
-		xhr.setRequestHeader('X-Parse-Application-Id', 'aBVFDLZ1bywHY65yQtsAv57Qbgr3O2xZBnHzt8SJ');
-		xhr.setRequestHeader('X-Parse-REST-API-Key', '2wrecY9xNFu00RdPIDMRB0agtg6947zOOGFi6DCl');
-		xhr.setRequestHeader('Content-Type', 'application/json');
-		//xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
-		return xhr;
-	},
-		
-	request: function(objectId, type) {
-		var value;
-		switch (type) {
-		case "post":
-			//var value = JSON.stringify({});
-			value = JSON.stringify(this);
-			break;
-		case "put":
-			value = JSON.stringify(this);
-			break;
-		case "get":
-			value = JSON.stringify({ 'rcid' : objectId });
-			break;
-		default:
-			break;
-		}
-		$.ajax({
-			url: "https://api.parse.com/1/classes/restaurant",
-			type: type,
-			dataType: 'json',
-			data: value,
-			beforeSend: this.setHeader,
-			success: function(jsonData){
-				console.log(type, " request successful");
-				console.log("result: ", jsonData);
-			},
-			error:function(){
-				console.log(type, " request failed");
-			}   
-		}); 		
-	}	
+
 });
 
 var RestaurantView = Backbone.View.extend({
