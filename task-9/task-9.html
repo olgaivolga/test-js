@@ -59,9 +59,9 @@ function setHeader(xhr) {
 		
 function Request(object, type, requestHandler) {
 		var value;
-		var data;
 		url = "https://api.parse.com/1/classes/restaurant";
 		switch (type) {
+		//value should be set in model? otherwise Request is not generic
 		case "post":
 			var value = JSON.stringify({ 
 				'rcid' : object.attributes.rcid, 
@@ -140,35 +140,6 @@ var RestaurantModel = Backbone.Model.extend({
 			Request(this, "put", this.putRequestHandler);
 		}, this)
 	},
-
-	validate: function(attributes) {
-		switch(attributes.state) {
-		case "open":
-			if(attributes.currentOccupancy < 0) 
-				return "Number of visitors must not be negative";
-			break;
-		case "closing":
-			if(attributes.currentOccupancy < 0)
-				return "Number of visitors must not be negative";
-			break;
-		case "closed":
-			if(attributes.currentOccupancy != 0)
-				return "Number of visitors in a closed restaurant must be 0";
-			break;
-		default:
-			return "Expected 'open' or 'close' state";
-		}
-	},
-
-	visitorCame: function(visitor) {
-		if (this.attributes.state != "closed" && !this.attributes.visitors.get(visitor)) {
-			visitor.checkin(this.attributes.restaurantName);
-			this.attributes.visitors.add(visitor);
-			this.set({currentOccupancy: this.attributes.currentOccupancy + 1});
-			return visitor;
-		}
-		return false;
-	},
 	
 	postRequestHandler: function(jsonData) {
 		console.log("POST result: ", jsonData);
@@ -197,6 +168,35 @@ var RestaurantModel = Backbone.Model.extend({
 			Request(this, "post", this.postRequestHandler);
 		}
 		return jsonData;
+	},
+
+	validate: function(attributes) {
+		switch(attributes.state) {
+		case "open":
+			if(attributes.currentOccupancy < 0) 
+				return "Number of visitors must not be negative";
+			break;
+		case "closing":
+			if(attributes.currentOccupancy < 0)
+				return "Number of visitors must not be negative";
+			break;
+		case "closed":
+			if(attributes.currentOccupancy != 0)
+				return "Number of visitors in a closed restaurant must be 0";
+			break;
+		default:
+			return "Expected 'open' or 'close' state";
+		}
+	},
+
+	visitorCame: function(visitor) {
+		if (this.attributes.state != "closed" && !this.attributes.visitors.get(visitor)) {
+			visitor.checkin(this.attributes.restaurantName);
+			this.attributes.visitors.add(visitor);
+			this.set({currentOccupancy: this.attributes.currentOccupancy + 1});
+			return visitor;
+		}
+		return false;
 	},
 
 	visitorLeft: function(visitor) {
