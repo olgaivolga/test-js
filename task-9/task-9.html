@@ -59,12 +59,12 @@ function setHeader(xhr) {
 		
 function Request(object, type, requestHandler) {
 		var value;
-		url = "https://api.parse.com/1/classes/restaurant";
+		var url = "https://api.parse.com/1/classes/restaurant";
 		switch (type) {
 		//value should be set in model? otherwise Request is not generic
 		case "post":
 			var value = JSON.stringify({ 
-				'rcid' : object.attributes.rcid, 
+				'myId' : object.attributes.myId, 
 				'currentOccupancy': 0, 
 				'restaurantName': object.attributes.restaurantName, 
 				'state':  object.attributes.state
@@ -75,7 +75,7 @@ function Request(object, type, requestHandler) {
 			url = "https://api.parse.com/1/classes/restaurant/" + object.attributes.parseObjectId;
 			break;
 		case "get":
-			value = jQuery.param({ 'where': JSON.stringify({'rcid' : object.attributes.rcid })});
+			value = jQuery.param({ 'where': JSON.stringify({'myId' : object.attributes.myId })});
 			url = "https://api.parse.com/1/classes/restaurant?" + value;
 			break;
 		default:
@@ -96,7 +96,6 @@ function Request(object, type, requestHandler) {
 
 var Visitor = Backbone.Model.extend({
 	defaults: { lastFoursquareCheckin: "", vcid: "" },
-	urlRoot: "/visitors",
 	initialize: function() { 
 		this.set("vcid", this.cid );
 	},
@@ -126,7 +125,6 @@ var RestaurantModel = Backbone.Model.extend({
 		_.bindAll(this); //because request handlers loose context
 		var visitors = new VisitorsList;
 		this.set("visitors", visitors);
-		this.set("rcid", this.cid );
 		// Propagate "change" to RestaurantModel
 		// Not necessary if RestaurantModel attributes are changed along with a Visitor
 		/*var self = this;
@@ -228,7 +226,7 @@ var RestaurantModel = Backbone.Model.extend({
 		if(this.attributes.state != "closed") {
 			if(this.attributes.currentOccupancy == 0) {
 				this.set({state: "closed"}, {validate: true});
-				this.get(this.attributes.rcid);
+				this.get(this.attributes.myId);
 			} else {
 				this.set({state: "closing"}, {validate: true});
 			}
@@ -255,7 +253,7 @@ var RestaurantView = Backbone.View.extend({
 	},
 	render: function() {
 		//console.log("RENDER:"+this.model.attributes.restaurantName);
-		this.$el.html(this.tmpl(this.model.attributes)).attr('id', this.model.attributes.rcid);
+		this.$el.html(this.tmpl(this.model.attributes)).attr('id', this.model.attributes.myId);
 		//Render visitors
 		var self = this;
 		this.model.attributes.visitors.each(function(visitor) {
@@ -302,8 +300,8 @@ var VisitorView = Backbone.View.extend({
 });
 
 // Создать конкретный ресторан.
-var r1 = new RestaurantModel({ restaurantName: "У Озера" }); 
-var r2 = new RestaurantModel({ restaurantName: "Дикая утка" });
+var r1 = new RestaurantModel({ restaurantName: "У Озера", myId: "r1" }); 
+var r2 = new RestaurantModel({ restaurantName: "Дикая утка", myId: "r2" });
 var restView1 = new RestaurantView({ model: r1 });
 var restView2 = new RestaurantView({ model: r2 });
 $("body").append(restView1.el);
