@@ -113,11 +113,9 @@ var Visitor = Backbone.Model.extend({
 var VisitorsList = Backbone.Collection.extend({ model: Visitor });
 
 var RestaurantModel = Backbone.Model.extend({
-
+	
 	defaults: { // can mess with GET!
 		currentOccupancy: 0,
-		//name: "",
-		//parseObjectId: "",
 		state: "open"
 	},
 	
@@ -125,6 +123,8 @@ var RestaurantModel = Backbone.Model.extend({
 		_.bindAll(this); //because request handlers loose context
 		var visitors = new VisitorsList;
 		this.set("visitors", visitors);
+		var restView = new RestaurantView({ model: this });
+		$("body").append(restView.el);
 		// Propagate "change" to RestaurantModel
 		// Not necessary if RestaurantModel attributes are changed along with a Visitor
 		/*var self = this;
@@ -132,11 +132,23 @@ var RestaurantModel = Backbone.Model.extend({
 			self.trigger("change");
 		})*/
 		//Load values 
-		Request(this, "get", this.getRequestHandler);
+		//Request(this, "get", this.getRequestHandler);
+		var self = this;
+		this.sync("read", this, {
+			success: this.getRequestHandler,
+			data: jQuery.param({ 'where': JSON.stringify({'myId' : this.attributes.myId })})
+		});
 		//Update restaurant on model change
 		this.on('change', function() {
 			Request(this, "put", this.putRequestHandler);
 		}, this)
+	},
+	
+	sync: function(method, model, options) {
+		options = options || {};
+		options.url = "https://api.parse.com/1/classes/restaurant";
+		options.beforeSend = setHeader;
+		Backbone.sync.apply(this, [method, model, options]);
 	},
 	
 	postRequestHandler: function(jsonData) {
@@ -150,8 +162,9 @@ var RestaurantModel = Backbone.Model.extend({
 		return jsonData;
 	},
 	getRequestHandler: function(jsonData) {
-		console.log("GET result: ", jsonData);
-		if (jsonData.results.length > 0) {
+		console.log("GET result: ", jsonData); // BUG! returns model content
+		//if (jsonData.results.length > 0) { //not an array any more (with .sync)
+		if (jsonData.results != []) {
 			console.log("Restaurant exists on parse.com"); 
 			this.set({parseObjectId: jsonData.results[0].objectId}); //using index is bad!
 			if (jsonData.results[0].currentOccupancy) { 
@@ -159,7 +172,7 @@ var RestaurantModel = Backbone.Model.extend({
 				this.set({currentOccupancy: jsonData.results[0].currentOccupancy});
 				this.set({state: jsonData.results[0].state}); 
 				console.log("Visitors: ", jsonData.results[0].visitors);
-				for (var i in jsonData.results[0].visitors) {
+				for (var i in jsonData.results[0].visitors) { //does not work
 					console.log(jsonData.results[0].visitors[i]);
 					this.visitorRestore(jsonData.results[0].visitors[i]);
 				}
@@ -297,7 +310,7 @@ var RestaurantView = Backbone.View.extend({
 		var id = $(clicked.currentTarget).attr("id");
 		console.log(id);
 		var v = this.model.attributes.visitors.get(id);
-		console.log(v); //UNDEFINED!
+		console.log(v);
 		if (this.model.attributes.currentOccupancy > 0) {
 			this.model.visitorLeft(v);
 		}
@@ -320,13 +333,13 @@ var VisitorView = Backbone.View.extend({
 });
 
 // Создать конкретный ресторан.
-var r1 = new RestaurantModel({ restaurantName: "У Озера", myId: "r1" }); 
-var r2 = new RestaurantModel({ restaurantName: "Дикая утка", myId: "r2" });
-var restView1 = new RestaurantView({ model: r1 });
-var restView2 = new RestaurantView({ model: r2 });
-$("body").append(restView1.el);
-$("body").append(restView2.el);
-
+var Restaurants = Backbone.Collection.extend({
+	model: RestaurantModel,
+});
+var myRestaurants = new Restaurants([
+	{ restaurantName: "У Озера", myId: "r1" },
+	{ restaurantName: "Дикая утка", myId: "r2" }
+]);
 
 </script>
 
