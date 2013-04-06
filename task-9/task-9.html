@@ -161,10 +161,9 @@ var RestaurantModel = Backbone.Model.extend({
 		console.log("PUT result: ", jsonData);
 		return jsonData;
 	},
-	getRequestHandler: function(jsonData) {
-		console.log("GET result: ", jsonData); // BUG! returns model content
-		//if (jsonData.results.length > 0) { //not an array any more (with .sync)
-		if (jsonData.results != []) {
+	getRequestHandler: function(model, jsonData, options) {
+		console.log("GET result: ", jsonData); 
+		if (jsonData.results.length > 0) { //not an array any more (with .sync)
 			console.log("Restaurant exists on parse.com"); 
 			this.set({parseObjectId: jsonData.results[0].objectId}); //using index is bad!
 			if (jsonData.results[0].currentOccupancy) { 
