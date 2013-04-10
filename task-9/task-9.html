@@ -56,43 +56,6 @@ function setHeader(xhr) {
 		xhr.setRequestHeader('Content-Type', 'application/json');
 		return xhr;
 }
-		
-function Request(object, type, requestHandler) {
-		var value;
-		var url = "https://api.parse.com/1/classes/restaurant";
-		switch (type) {
-		//value should be set in model? otherwise Request is not generic
-		case "post":
-			var value = JSON.stringify({ 
-				'myId' : object.attributes.myId, 
-				'currentOccupancy': 0, 
-				'restaurantName': object.attributes.restaurantName, 
-				'state':  object.attributes.state
-			});
-			break;
-		case "put":
-			value = JSON.stringify(object);
-			url = "https://api.parse.com/1/classes/restaurant/" + object.attributes.parseObjectId;
-			break;
-		case "get":
-			value = jQuery.param({ 'where': JSON.stringify({'myId' : object.attributes.myId })});
-			url = "https://api.parse.com/1/classes/restaurant?" + value;
-			break;
-		default:
-			break;
-		}
-		$.ajax({
-			url: url,
-			type: type,
-			dataType: 'json',
-			data: value,
-			beforeSend: setHeader,
-			success: requestHandler,
-			error:function(){
-				console.log(type, " request failed");
-			}   
-		});
-}	
 
 var Visitor = Backbone.Model.extend({
 	defaults: { lastFoursquareCheckin: "", vcid: "" },
@@ -114,6 +77,8 @@ var VisitorsList = Backbone.Collection.extend({ model: Visitor });
 
 var RestaurantModel = Backbone.Model.extend({
 	
+	urlRoot: "https://api.parse.com/1/classes/restaurant",
+	
 	defaults: { // can mess with GET!
 		currentOccupancy: 0,
 		state: "open"
@@ -132,32 +97,34 @@ var RestaurantModel = Backbone.Model.extend({
 			self.trigger("change");
 		})*/
 		//Load values 
-		//Request(this, "get", this.getRequestHandler);
-		var self = this;
 		this.sync("read", this, {
 			success: this.getRequestHandler,
-			data: jQuery.param({ 'where': JSON.stringify({'myId' : this.attributes.myId })})
+			data: jQuery.param({ 'where': JSON.stringify({'myId' : this.attributes.myId })}),
+			url: "https://api.parse.com/1/classes/restaurant"
 		});
 		//Update restaurant on model change
-		this.on('change', function() {
-			Request(this, "put", this.putRequestHandler);
+		this.on('change', function() { //CAN MESS WITH DEFAULTS
+			this.sync("update", this, {
+				success: this.putRequestHandler,
+				data: JSON.stringify(this),
+				url: "https://api.parse.com/1/classes/restaurant/" + this.attributes.parseObjectId
+			});
 		}, this)
 	},
 	
 	sync: function(method, model, options) {
 		options = options || {};
-		options.url = "https://api.parse.com/1/classes/restaurant";
 		options.beforeSend = setHeader;
 		Backbone.sync.apply(this, [method, model, options]);
 	},
 	
-	postRequestHandler: function(jsonData) {
+	postRequestHandler: function(model, jsonData, options) {
 		console.log("POST result: ", jsonData);
 		//Initial post, to save API objectId
 		this.set({parseObjectId: jsonData.objectId});
 		return jsonData;
 	},
-	putRequestHandler: function(jsonData) {
+	putRequestHandler: function(model, jsonData, options) {
 		console.log("PUT result: ", jsonData);
 		return jsonData;
 	},
@@ -179,7 +146,16 @@ var RestaurantModel = Backbone.Model.extend({
 		} else {
 			console.log("Restaurant does not exist on parse.com");
 			//Create empty restaurant
-			Request(this, "post", this.postRequestHandler);
+			this.sync("create", this, {
+				success: this.postRequestHandler,
+				data: JSON.stringify({ 
+					'myId' : this.attributes.myId, 
+					'currentOccupancy': 0, 
+					'restaurantName': this.attributes.restaurantName, 
+					'state':  this.attributes.state
+				}),
+				url: "https://api.parse.com/1/classes/restaurant"
+			})
 		}
 		return jsonData;
 	},
