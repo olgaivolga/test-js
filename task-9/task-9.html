@@ -130,18 +130,17 @@ var RestaurantModel = Backbone.Model.extend({
 	},
 	getRequestHandler: function(model, jsonData, options) {
 		console.log("GET result: ", jsonData); 
-		if (jsonData.results.length > 0) { //not an array any more (with .sync)
+		if (jsonData.results.length > 0) { 
 			console.log("Restaurant exists on parse.com"); 
 			this.set({parseObjectId: jsonData.results[0].objectId}); //using index is bad!
 			if (jsonData.results[0].currentOccupancy) { 
-			// if the list of restaurants of particular model is not empty (we always need one anyway)
+				console.log("Visitors: ", jsonData.results[0].visitors);
+				this.attributes.visitors.reset(jsonData.results[0].visitors);
+				this.attributes.visitors.each(function(visitor) { 
+					visitor.view = new VisitorView({ model: visitor });
+				})
 				this.set({currentOccupancy: jsonData.results[0].currentOccupancy});
 				this.set({state: jsonData.results[0].state}); 
-				console.log("Visitors: ", jsonData.results[0].visitors);
-				for (var i in jsonData.results[0].visitors) { //does not work
-					console.log(jsonData.results[0].visitors[i]);
-					this.visitorRestore(jsonData.results[0].visitors[i]);
-				}
 			}
 		} else {
 			console.log("Restaurant does not exist on parse.com");
@@ -194,18 +193,6 @@ var RestaurantModel = Backbone.Model.extend({
 		return false;
 	},
 
-	visitorRestore: function(data) {
-		var visitor = new Visitor(data);
-		visitor.view = new VisitorView({ model: visitor });
-		if (this.attributes.state != "closed" && !this.attributes.visitors.get(visitor)) {
-			visitor.checkin(this.attributes.restaurantName);
-			this.attributes.visitors.add(visitor);
-			this.trigger("change");
-			return visitor;
-		}
-		return false;
-	},
-	
 	visitorLeft: function(visitor) {
 		var visitors = this.attributes.visitors;
 		var v = visitors.get(visitor);
