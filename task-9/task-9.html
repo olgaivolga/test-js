@@ -103,7 +103,7 @@ var RestaurantModel = Backbone.Model.extend({
 			url: "https://api.parse.com/1/classes/restaurant"
 		});
 		//Update restaurant on model change
-		this.on('change', function() { //CAN MESS WITH DEFAULTS
+		this.on('change:currentOccupancy change:state', function() { 
 			this.sync("update", this, {
 				success: this.putRequestHandler,
 				data: JSON.stringify(this),
@@ -133,7 +133,7 @@ var RestaurantModel = Backbone.Model.extend({
 		if (jsonData.results.length > 0) { 
 			console.log("Restaurant exists on parse.com"); 
 			this.set({parseObjectId: jsonData.results[0].objectId}); //using index is bad!
-			if (jsonData.results[0].currentOccupancy) { 
+			if (jsonData.results[0].currentOccupancy != undefined) { 
 				console.log("Visitors: ", jsonData.results[0].visitors);
 				this.attributes.visitors.reset(jsonData.results[0].visitors);
 				this.attributes.visitors.each(function(visitor) { 
