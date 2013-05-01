@@ -32,7 +32,6 @@ Restaurant is open until the last guest leaves.<br>
 </script>
 
 <script id="visitor-box" type="text/underscore-template">
-//<%- vcid %>
 <%- title %>
 </script>
 
@@ -96,13 +95,13 @@ var RestaurantModel = Backbone.Model.extend({
 		visitors.on("add remove", function(){
 			self.trigger("change");
 		})*/
-		//Load values 
+		//Load values from server 
 		this.sync("read", this, {
 			success: this.getRequestHandler,
 			data: jQuery.param({ 'where': JSON.stringify({'myId' : this.attributes.myId })}),
 			url: "https://api.parse.com/1/classes/restaurant"
 		});
-		//Update restaurant on model change
+		//Update restaurant on attributes change (happens in getRequestHandler)
 		this.on('change:currentOccupancy change:state', function() { 
 			this.sync("update", this, {
 				success: this.putRequestHandler,
@@ -139,6 +138,7 @@ var RestaurantModel = Backbone.Model.extend({
 				this.attributes.visitors.each(function(visitor) { 
 					visitor.view = new VisitorView({ model: visitor });
 				})
+				//Each of the two below triggers PUT
 				this.set({currentOccupancy: jsonData.results[0].currentOccupancy});
 				this.set({state: jsonData.results[0].state}); 
 			}
