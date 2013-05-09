@@ -38,16 +38,6 @@ Restaurant is open until the last guest leaves.<br>
 <h2>Backbone's View</h2>
 
 <script>
-/*
-Parse.initialize("aBVFDLZ1bywHY65yQtsAv57Qbgr3O2xZBnHzt8SJ", "17L7goDV12MLrs6uDCaXx5xw8bFiT5C1RUoTHc6A");
-var TestObject = Parse.Object.extend("TestObject");
-var testObject = new TestObject();
-testObject.save({foo: "bar"}, {
-  success: function(object) {
-    alert("yay! it worked");
-  }
-});
-*/
 
 function setHeader(xhr) {
 		xhr.setRequestHeader('X-Parse-Application-Id', 'aBVFDLZ1bywHY65yQtsAv57Qbgr3O2xZBnHzt8SJ');
@@ -76,8 +66,6 @@ var VisitorsList = Backbone.Collection.extend({ model: Visitor });
 
 var RestaurantModel = Backbone.Model.extend({
 	
-	urlRoot: "https://api.parse.com/1/classes/restaurant",
-	
 	defaults: { // can mess with GET!
 		currentOccupancy: 0,
 		state: "open"
@@ -89,76 +77,8 @@ var RestaurantModel = Backbone.Model.extend({
 		this.set("visitors", visitors);
 		var restView = new RestaurantView({ model: this });
 		$("body").append(restView.el);
-		// Propagate "change" to RestaurantModel
-		// Not necessary if RestaurantModel attributes are changed along with a Visitor
-		/*var self = this;
-		visitors.on("add remove", function(){
-			self.trigger("change");
-		})*/
-		//Load values from server 
-		this.sync("read", this, {
-			success: this.getRequestHandler,
-			data: jQuery.param({ 'where': JSON.stringify({'myId' : this.attributes.myId })}),
-			url: "https://api.parse.com/1/classes/restaurant"
-		});
-		//Update restaurant on attributes change (happens in getRequestHandler)
-		this.on('change:currentOccupancy change:state', function() { 
-			this.sync("update", this, {
-				success: this.putRequestHandler,
-				data: JSON.stringify(this),
-				url: "https://api.parse.com/1/classes/restaurant/" + this.attributes.parseObjectId
-			});
-		}, this)
 	},
 	
-	sync: function(method, model, options) {
-		options = options || {};
-		options.beforeSend = setHeader;
-		Backbone.sync.apply(this, [method, model, options]);
-	},
-	
-	postRequestHandler: function(model, jsonData, options) {
-		console.log("POST result: ", jsonData);
-		//Initial post, to save API objectId
-		this.set({parseObjectId: jsonData.objectId});
-		return jsonData;
-	},
-	putRequestHandler: function(model, jsonData, options) {
-		console.log("PUT result: ", jsonData);
-		return jsonData;
-	},
-	getRequestHandler: function(model, jsonData, options) {
-		console.log("GET result: ", jsonData); 
-		if (jsonData.results.length > 0) { 
-			console.log("Restaurant exists on parse.com"); 
-			this.set({parseObjectId: jsonData.results[0].objectId}); //using index is bad!
-			if (jsonData.results[0].currentOccupancy != undefined) { 
-				console.log("Visitors: ", jsonData.results[0].visitors);
-				this.attributes.visitors.reset(jsonData.results[0].visitors);
-				this.attributes.visitors.each(function(visitor) { 
-					visitor.view = new VisitorView({ model: visitor });
-				})
-				//Each of the two below triggers PUT
-				this.set({currentOccupancy: jsonData.results[0].currentOccupancy});
-				this.set({state: jsonData.results[0].state}); 
-			}
-		} else {
-			console.log("Restaurant does not exist on parse.com");
-			//Create empty restaurant
-			this.sync("create", this, {
-				success: this.postRequestHandler,
-				data: JSON.stringify({ 
-					'myId' : this.attributes.myId, 
-					'currentOccupancy': 0, 
-					'restaurantName': this.attributes.restaurantName, 
-					'state':  this.attributes.state
-				}),
-				url: "https://api.parse.com/1/classes/restaurant"
-			})
-		}
-		return jsonData;
-	},
-
 	validate: function(attributes) {
 		switch(attributes.state) {
 		case "open":
@@ -294,9 +214,82 @@ var VisitorView = Backbone.View.extend({
 	}
 });
 
+var ParsePersistedRestaurantModel = RestaurantModel.extend({
+
+	urlRoot: "https://api.parse.com/1/classes/restaurant",
+
+    initialize: function() {
+        ParsePersistedRestaurantModel.__super__.initialize.apply(this, arguments);
+		
+		this.sync("read", this, {
+			success: this.getRequestHandler,
+			data: jQuery.param({ 'where': JSON.stringify({'myId' : this.attributes.myId })}),
+			url: "https://api.parse.com/1/classes/restaurant"
+		});
+
+		this.on('change:currentOccupancy change:state', function() { 
+			this.sync("update", this, {
+				success: this.putRequestHandler,
+				data: JSON.stringify(this),
+				url: "https://api.parse.com/1/classes/restaurant/" + this.attributes.parseObjectId
+			});
+		}, this)		
+    },
+	
+	sync: function(method, model, options) {
+		options = options || {};
+		options.beforeSend = setHeader;
+		Backbone.sync.apply(this, [method, model, options]);
+	},
+
+	postRequestHandler: function(model, jsonData, options) {
+		console.log("POST result: ", jsonData);
+		//Initial post, to save API objectId
+		this.set({parseObjectId: jsonData.objectId});
+		return jsonData;
+	},
+	putRequestHandler: function(model, jsonData, options) {
+		console.log("PUT result: ", jsonData);
+		return jsonData;
+	},
+	getRequestHandler: function(model, jsonData, options) {
+		console.log("GET result: ", jsonData); 
+		if (jsonData.results.length > 0) { 
+			console.log("Restaurant exists on parse.com"); 
+			this.set({parseObjectId: jsonData.results[0].objectId}); //using index is bad!
+			if (jsonData.results[0].currentOccupancy != undefined) { 
+				console.log("Visitors: ", jsonData.results[0].visitors);
+				this.attributes.visitors.reset(jsonData.results[0].visitors);
+				this.attributes.visitors.each(function(visitor) { 
+					visitor.view = new VisitorView({ model: visitor });
+				})
+				//Each of the two below triggers PUT
+				this.set({currentOccupancy: jsonData.results[0].currentOccupancy});
+				this.set({state: jsonData.results[0].state}); 
+			}
+		} else {
+			console.log("Restaurant does not exist on parse.com");
+			//Create empty restaurant
+			this.sync("create", this, {
+				success: this.postRequestHandler,
+				data: JSON.stringify({ 
+					'myId' : this.attributes.myId, 
+					'currentOccupancy': 0, 
+					'restaurantName': this.attributes.restaurantName, 
+					'state':  this.attributes.state
+				}),
+				url: "https://api.parse.com/1/classes/restaurant"
+			})
+		}
+		return jsonData;
+	},
+
+});
+
 // Создать конкретный ресторан.
 var Restaurants = Backbone.Collection.extend({
-	model: RestaurantModel,
+	//model: RestaurantModel,
+	model: ParsePersistedRestaurantModel,
 });
 var myRestaurants = new Restaurants([
 	{ restaurantName: "У Озера", myId: "r1" },
