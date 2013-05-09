@@ -226,7 +226,7 @@ function setHeader(xhr) {
 
 var ParsePersistedRestaurantModel = RestaurantModel.extend({
 
-    initialize: function() {
+	initialize: function() {
 		ParsePersistedRestaurantModel.__super__.initialize.apply(this, arguments);
 		
 		this.sync("read", this, {
