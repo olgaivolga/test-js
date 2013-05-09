@@ -227,23 +227,23 @@ function setHeader(xhr) {
 var ParsePersistedRestaurantModel = RestaurantModel.extend({
 
     initialize: function() {
-        ParsePersistedRestaurantModel.__super__.initialize.apply(this, arguments);
+		ParsePersistedRestaurantModel.__super__.initialize.apply(this, arguments);
 		
 		this.sync("read", this, {
 			success: this.getRequestHandler,
 			data: jQuery.param({ 'where': JSON.stringify({'myId' : this.attributes.myId })}),
 			url: "https://api.parse.com/1/classes/restaurant"
 		});
-
+		
 		this.on('change:currentOccupancy change:state', function() { 
 			this.sync("update", this, {
 				success: this.putRequestHandler,
 				data: JSON.stringify(this),
 				url: "https://api.parse.com/1/classes/restaurant/" + this.attributes.parseObjectId
 			});
-		}, this)		
-    },
-
+		}, this)
+	},
+	
 	sync: function(method, model, options) {
 		options = options || {};
 		options.beforeSend = setHeader;
