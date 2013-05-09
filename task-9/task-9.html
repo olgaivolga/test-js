@@ -39,13 +39,6 @@ Restaurant is open until the last guest leaves.<br>
 
 <script>
 
-function setHeader(xhr) {
-		xhr.setRequestHeader('X-Parse-Application-Id', 'aBVFDLZ1bywHY65yQtsAv57Qbgr3O2xZBnHzt8SJ');
-		xhr.setRequestHeader('X-Parse-REST-API-Key', '2wrecY9xNFu00RdPIDMRB0agtg6947zOOGFi6DCl');
-		xhr.setRequestHeader('Content-Type', 'application/json');
-		return xhr;
-}
-
 var Visitor = Backbone.Model.extend({
 	defaults: { lastFoursquareCheckin: "", vcid: "" },
 	initialize: function() { 
@@ -151,6 +144,16 @@ var RestaurantModel = Backbone.Model.extend({
 		return false;
 	},
 
+	restoreRestaurant: function(jsonData) {
+		console.log("Visitors: ", jsonData.results[0].visitors);
+		this.attributes.visitors.reset(jsonData.results[0].visitors);
+		this.attributes.visitors.each(function(visitor) { 
+			visitor.view = new VisitorView({ model: visitor });
+		})
+		//Each of the two below triggers PUT in ParsePersistedRestaurantModel.initialize
+		this.set({currentOccupancy: jsonData.results[0].currentOccupancy});
+		this.set({state: jsonData.results[0].state}); 
+	},
 });
 
 var RestaurantView = Backbone.View.extend({
@@ -214,9 +217,14 @@ var VisitorView = Backbone.View.extend({
 	}
 });
 
-var ParsePersistedRestaurantModel = RestaurantModel.extend({
+function setHeader(xhr) {
+		xhr.setRequestHeader('X-Parse-Application-Id', 'aBVFDLZ1bywHY65yQtsAv57Qbgr3O2xZBnHzt8SJ');
+		xhr.setRequestHeader('X-Parse-REST-API-Key', '2wrecY9xNFu00RdPIDMRB0agtg6947zOOGFi6DCl');
+		xhr.setRequestHeader('Content-Type', 'application/json');
+		return xhr;
+}
 
-	urlRoot: "https://api.parse.com/1/classes/restaurant",
+var ParsePersistedRestaurantModel = RestaurantModel.extend({
 
     initialize: function() {
         ParsePersistedRestaurantModel.__super__.initialize.apply(this, arguments);
@@ -235,7 +243,7 @@ var ParsePersistedRestaurantModel = RestaurantModel.extend({
 			});
 		}, this)		
     },
-	
+
 	sync: function(method, model, options) {
 		options = options || {};
 		options.beforeSend = setHeader;
@@ -258,14 +266,7 @@ var ParsePersistedRestaurantModel = RestaurantModel.extend({
 			console.log("Restaurant exists on parse.com"); 
 			this.set({parseObjectId: jsonData.results[0].objectId}); //using index is bad!
 			if (jsonData.results[0].currentOccupancy != undefined) { 
-				console.log("Visitors: ", jsonData.results[0].visitors);
-				this.attributes.visitors.reset(jsonData.results[0].visitors);
-				this.attributes.visitors.each(function(visitor) { 
-					visitor.view = new VisitorView({ model: visitor });
-				})
-				//Each of the two below triggers PUT
-				this.set({currentOccupancy: jsonData.results[0].currentOccupancy});
-				this.set({state: jsonData.results[0].state}); 
+				this.restoreRestaurant(jsonData);
 			}
 		} else {
 			console.log("Restaurant does not exist on parse.com");
