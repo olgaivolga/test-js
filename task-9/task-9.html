@@ -287,6 +287,20 @@ var ParsePersistedRestaurantModel = RestaurantModel.extend({
 
 });
 
+var TeachToLog = function(model) {
+	var oldInit = model.initialize;
+	console.log("Teaching model to log"); // works
+	model.initialize = function() { 
+		console.log("Extending model.initialize"); // does not work
+		oldInit.apply(this, arguments);
+		this.on('change:currentOccupancy change:state', function() { 
+			alert("Something happened!");
+		}, this)
+    }
+};
+
+TeachToLog(RestaurantModel);
+
 // Создать конкретный ресторан.
 var Restaurants = Backbone.Collection.extend({
 	//model: RestaurantModel,
@@ -296,7 +310,7 @@ var myRestaurants = new Restaurants([
 	{ restaurantName: "У Озера", myId: "r1" },
 	{ restaurantName: "Дикая утка", myId: "r2" }
 ]);
-
+//myRestaurants.each(function(restaurant) {TeachToLog(restaurant)})
 </script>
 
 </body>
