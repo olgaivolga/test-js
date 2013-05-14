@@ -1,7 +1,7 @@
 define(
 	[
-		'components/button',
-		'components/textarea'
+		'app/button',
+		'app/textarea'
 	],
 
 	function(Button, TextArea) {
