@@ -1,15 +1,19 @@
 define(
 	[
 		'app/button',
-		'app/textarea'
+		'app/textarea',
 	],
 
 	function(Button, TextArea) {
-		Button.attachTo('#button1', { 
+		
+		Button.attachTo('button#d1', { 
 			//text: "Don't click me", 
 			//buttonClass: "js-not-a-button"
 		});
 		
-		TextArea.attachTo('#text1');
+		TextArea.attachTo('textarea#d1');
+		
+		Button.attachTo('button#d2');
+		TextArea.attachTo('textarea#d2');
 	}
 );

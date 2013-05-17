@@ -11,12 +11,13 @@ define(
 		function Button() {
 			this.defaultAttrs({ 
 				buttonClass: 'js-button',
-				text: 'Click me'
+				text: 'Add'
 			});
 	  
-			this.doSomething = function() {
-				console.log("Button component: button clicked!");
-				this.trigger('ButtonClicked');	
+			this.doSomething = function(node) {
+				// Trigger event (name = button id)
+				this.trigger($(node.currentTarget).attr("id"));
+				//this.teardown();  // remove component
 			};	
 			  
 			this.after('initialize', function() {
