@@ -3,6 +3,7 @@
   "version": "1.2.1",
   "dependencies": {
     "flight": "~1.0.0",
-    "requirejs": "~2.1.6"
+    "requirejs": "~2.1.6",
+    "underscore": "~1.4.4"
   }
 }

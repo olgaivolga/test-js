@@ -14,7 +14,7 @@ define(
 			this.defaultAttrs({ 
 				text: 0
 			});
-
+			
 			this.doSomething = function() {
 				/*
 				var d = new Date();

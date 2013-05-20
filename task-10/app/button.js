@@ -16,8 +16,8 @@ define(
 	  
 			this.doSomething = function(node) {
 				// Trigger event (name = button id)
-				this.trigger($(node.currentTarget).attr("id"));
-				//this.teardown();  // remove component
+				var O = {"key" : "value"};
+				this.trigger($(node.currentTarget).attr("id"), O);
 			};	
 			  
 			this.after('initialize', function() {
