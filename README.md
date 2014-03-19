@@ -1,2 +1,2 @@
-prog-course-1
+prog-course-1 exercises
 ====
